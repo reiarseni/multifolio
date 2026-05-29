@@ -1,20 +1,21 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack:
+    Backend: Python 3.12, FastAPI, SQLAlchemy 2.0 async, Alembic, Celery, Redis, PostgreSQL 16
+    Frontend: TypeScript, Next.js 15 App Router, Tailwind CSS 4, shadcn/ui, Zustand, React Hook Form + Zod
+    Package managers: UV (backend), npm (frontend)
+    Infra: Docker Compose, GitHub Actions CI
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Conventions:
+    - Monorepo with /backend and /frontend as independent workspaces
+    - Backend source lives in backend/src/app/ (modules by layer: routers, models, schemas, services, core, db, worker)
+    - Frontend source lives in frontend/src/ with App Router at frontend/src/app/
+    - Linting: Ruff (backend), ESLint + TypeScript strict (frontend)
+    - Commits follow Conventional Commits
+    - All env vars documented in .env.example files
+    - Auth: JWT access token in client memory + httpOnly cookie refresh token (OWASP SPA pattern)
+    - Refresh token rotation via Redis
+    - Auto-migration on api container startup (alembic upgrade head)
+
+  Domain: Multifolio — portfolio management application (greenfield)
