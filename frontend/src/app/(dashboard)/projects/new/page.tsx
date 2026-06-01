@@ -11,7 +11,7 @@ export default function NewProjectPage() {
 
   const handleSave = async (data: Parameters<typeof projectsApi.create>[0]) => {
     setSaving(true);
-    const project = await projectsApi.create(data);
+    await projectsApi.create(data);
     router.push("/projects");
   };
 

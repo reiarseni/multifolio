@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { projectsApi, type Project } from "@/lib/api/projects";
+import type { Project } from "@/lib/api/projects";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
