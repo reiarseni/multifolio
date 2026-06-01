@@ -19,6 +19,17 @@ class WorkExperienceCreate(WorkExperienceBase):
     pass
 
 
+class WorkExperienceUpdate(BaseModel):
+    company: str | None = None
+    position: str | None = None
+    description: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    is_current: bool | None = None
+    location: str | None = None
+    sort_order: int | None = None
+
+
 class WorkExperienceResponse(WorkExperienceBase):
     id: uuid.UUID
     profile_id: uuid.UUID
@@ -43,6 +54,17 @@ class EducationCreate(EducationBase):
     pass
 
 
+class EducationUpdate(BaseModel):
+    institution: str | None = None
+    degree: str | None = None
+    field: str | None = None
+    description: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    is_current: bool | None = None
+    sort_order: int | None = None
+
+
 class EducationResponse(EducationBase):
     id: uuid.UUID
     profile_id: uuid.UUID
@@ -62,6 +84,14 @@ class SkillBase(BaseModel):
 
 class SkillCreate(SkillBase):
     pass
+
+
+class SkillUpdate(BaseModel):
+    name: str | None = None
+    category: str | None = None
+    level: str | None = None
+    is_transversal: bool | None = None
+    sort_order: int | None = None
 
 
 class SkillResponse(SkillBase):
@@ -85,6 +115,15 @@ class CertificationCreate(CertificationBase):
     pass
 
 
+class CertificationUpdate(BaseModel):
+    name: str | None = None
+    issuer: str | None = None
+    issue_date: date | None = None
+    expiry_date: date | None = None
+    credential_url: str | None = None
+    sort_order: int | None = None
+
+
 class CertificationResponse(CertificationBase):
     id: uuid.UUID
     profile_id: uuid.UUID
@@ -95,7 +134,6 @@ class CertificationResponse(CertificationBase):
 
 class BaseProfileUpdate(BaseModel):
     full_name: str | None = None
-    email: str | None = None
     phone: str | None = None
     location: str | None = None
     title: str | None = None
