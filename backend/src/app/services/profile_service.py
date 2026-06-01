@@ -25,64 +25,35 @@ from app.schemas.profile import (
 )
 
 
-<<<<<<< HEAD
-async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+async def get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
     result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
     profile = result.scalar_one_or_none()
     if profile is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-=======
-async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile | None:
-    result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
-    return result.scalar_one_or_none()
-
-
-async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
-    profile = await _get_profile(db, user_id)
-    if profile is not None:
-        return profile
-    profile = BaseProfile(user_id=user_id, full_name="")
-    db.add(profile)
-    await db.commit()
-    await db.refresh(profile)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+        profile = BaseProfile(
+            user_id=user_id,
+            full_name="",
+            email="",
+        )
+        db.add(profile)
+        await db.commit()
+        await db.refresh(profile)
     return profile
 
 
 async def get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
+    profile = await get_or_create_profile(db, user_id)
 
     for attr in ("experiences", "educations", "skills", "certifications"):
         await db.run_sync(lambda _: getattr(profile, attr))
 
-=======
-    result = await db.execute(
-        select(BaseProfile)
-        .where(BaseProfile.user_id == user_id)
-        .options(
-            selectinload(BaseProfile.experiences),
-            selectinload(BaseProfile.educations),
-            selectinload(BaseProfile.skills),
-            selectinload(BaseProfile.certifications),
-        )
-    )
-    profile = result.scalar_one_or_none()
-    if profile is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     return profile
 
 
 async def update_profile(
     db: AsyncSession, user_id: uuid.UUID, data: BaseProfileUpdate
 ) -> BaseProfile:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
+    profile = await get_or_create_profile(db, user_id)
 
-=======
-    profile = await _get_or_create_profile(db, user_id)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(profile, field, value)
@@ -94,11 +65,7 @@ async def update_profile(
 async def add_experience(
     db: AsyncSession, user_id: uuid.UUID, data: WorkExperienceCreate
 ) -> WorkExperience:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
-    profile = await _get_or_create_profile(db, user_id)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     experience = WorkExperience(profile_id=profile.id, **data.model_dump())
     db.add(experience)
     await db.commit()
@@ -109,10 +76,7 @@ async def add_experience(
 async def update_experience(
     db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID, data: WorkExperienceUpdate
 ) -> WorkExperience:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(WorkExperience)
         .join(BaseProfile, WorkExperience.profile_id == BaseProfile.id)
@@ -129,10 +93,7 @@ async def update_experience(
 
 
 async def delete_experience(db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID) -> None:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(WorkExperience)
         .join(BaseProfile, WorkExperience.profile_id == BaseProfile.id)
@@ -146,11 +107,7 @@ async def delete_experience(db: AsyncSession, user_id: uuid.UUID, experience_id:
 
 
 async def add_education(db: AsyncSession, user_id: uuid.UUID, data: EducationCreate) -> Education:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
-    profile = await _get_or_create_profile(db, user_id)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     education = Education(profile_id=profile.id, **data.model_dump())
     db.add(education)
     await db.commit()
@@ -161,10 +118,7 @@ async def add_education(db: AsyncSession, user_id: uuid.UUID, data: EducationCre
 async def update_education(
     db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID, data: EducationUpdate
 ) -> Education:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Education)
         .join(BaseProfile, Education.profile_id == BaseProfile.id)
@@ -181,10 +135,7 @@ async def update_education(
 
 
 async def delete_education(db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID) -> None:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Education)
         .join(BaseProfile, Education.profile_id == BaseProfile.id)
@@ -198,11 +149,7 @@ async def delete_education(db: AsyncSession, user_id: uuid.UUID, education_id: u
 
 
 async def add_skill(db: AsyncSession, user_id: uuid.UUID, data: SkillCreate) -> Skill:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
-    profile = await _get_or_create_profile(db, user_id)
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     skill = Skill(profile_id=profile.id, **data.model_dump())
     db.add(skill)
     await db.commit()
@@ -213,10 +160,7 @@ async def add_skill(db: AsyncSession, user_id: uuid.UUID, data: SkillCreate) -> 
 async def update_skill(
     db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID, data: SkillUpdate
 ) -> Skill:
-<<<<<<< HEAD
-    profile = await _get_profile(db, user_id)
-=======
->>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
+    profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Skill)
         .join(BaseProfile, Skill.profile_id == BaseProfile.id)
