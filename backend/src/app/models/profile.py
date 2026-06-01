@@ -108,9 +108,7 @@ facet_certifications = Table(
 class BaseProfile(Base):
     __tablename__ = "base_profiles"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -127,9 +125,7 @@ class BaseProfile(Base):
     website: Mapped[str | None] = mapped_column(String(500), nullable=True)
     linkedin_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -158,9 +154,7 @@ class BaseProfile(Base):
 class WorkExperience(Base):
     __tablename__ = "work_experiences"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("base_profiles.id", ondelete="CASCADE"),
@@ -175,24 +169,22 @@ class WorkExperience(Base):
     is_current: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="experiences")
 
-    facets: Mapped[list["Facet"]] = relationship(back_populates="selected_experiences")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_work_experiences", back_populates="selected_experiences"
+    )
 
 
 class Education(Base):
     __tablename__ = "educations"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("base_profiles.id", ondelete="CASCADE"),
@@ -207,24 +199,22 @@ class Education(Base):
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="educations")
 
-    facets: Mapped[list["Facet"]] = relationship(back_populates="selected_educations")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_educations", back_populates="selected_educations"
+    )
 
 
 class Skill(Base):
     __tablename__ = "skills"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("base_profiles.id", ondelete="CASCADE"),
@@ -234,28 +224,24 @@ class Skill(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     category: Mapped[str | None] = mapped_column(String(255), nullable=True)
     level: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    is_transversal: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
+    is_transversal: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="skills")
 
-    facets: Mapped[list["Facet"]] = relationship(back_populates="selected_skills")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_skills", back_populates="selected_skills"
+    )
 
 
 class Certification(Base):
     __tablename__ = "certifications"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("base_profiles.id", ondelete="CASCADE"),
@@ -268,24 +254,22 @@ class Certification(Base):
     expiry_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     credential_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="certifications")
 
-    facets: Mapped[list["Facet"]] = relationship(back_populates="selected_certifications")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_certifications", back_populates="selected_certifications"
+    )
 
 
 class Project(Base):
     __tablename__ = "projects"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     profile_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("base_profiles.id", ondelete="CASCADE"),
@@ -299,15 +283,15 @@ class Project(Base):
     github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     live_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="projects")
-    facets: Mapped[list["Facet"]] = relationship(back_populates="selected_projects")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_projects", back_populates="selected_projects"
+    )
     images: Mapped[list["ProjectImage"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
@@ -319,9 +303,7 @@ class Project(Base):
 class ProjectImage(Base):
     __tablename__ = "project_images"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
@@ -331,9 +313,7 @@ class ProjectImage(Base):
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
     caption: Mapped[str | None] = mapped_column(String(255), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     project: Mapped["Project"] = relationship(back_populates="images")
 
@@ -341,9 +321,7 @@ class ProjectImage(Base):
 class ProjectAttachment(Base):
     __tablename__ = "project_attachments"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
@@ -354,9 +332,7 @@ class ProjectAttachment(Base):
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     project: Mapped["Project"] = relationship(back_populates="attachments")
 
@@ -364,9 +340,7 @@ class ProjectAttachment(Base):
 class Facet(Base):
     __tablename__ = "facets"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -374,22 +348,14 @@ class Facet(Base):
         index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, index=True
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     meta_title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     meta_description: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    pdf_template: Mapped[str] = mapped_column(
-        String(50), default="moderna", nullable=False
-    )
-    is_published: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    pdf_template: Mapped[str] = mapped_column(String(50), default="moderna", nullable=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -412,6 +378,4 @@ class Facet(Base):
         secondary="facet_certifications", back_populates="facets"
     )
 
-    __table_args__ = (
-        UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)

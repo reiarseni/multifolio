@@ -20,9 +20,7 @@ class FacetBase(BaseModel):
     @classmethod
     def validate_slug(cls, v: str) -> str:
         if not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", v):
-            raise ValueError(
-                "slug must contain only lowercase letters, numbers, and hyphens"
-            )
+            raise ValueError("slug must contain only lowercase letters, numbers, and hyphens")
         return v
 
 
