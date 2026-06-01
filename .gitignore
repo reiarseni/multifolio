@@ -1,6 +1,7 @@
 
 /.claude/plans
 /ANALISIS
+/.opencode/*
 
 # Environment
 .env
