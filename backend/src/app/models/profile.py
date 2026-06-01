@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,11 +22,16 @@ from app.db.base import Base
 facet_work_experiences = Table(
     "facet_work_experiences",
     Base.metadata,
-    Column("facet_id", UUID(as_uuid=True), ForeignKey("facets.id"), primary_key=True),
+    Column(
+        "facet_id",
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
     Column(
         "work_experience_id",
         UUID(as_uuid=True),
-        ForeignKey("work_experiences.id"),
+        ForeignKey("work_experiences.id", ondelete="CASCADE"),
         primary_key=True,
     ),
 )
@@ -33,11 +39,16 @@ facet_work_experiences = Table(
 facet_educations = Table(
     "facet_educations",
     Base.metadata,
-    Column("facet_id", UUID(as_uuid=True), ForeignKey("facets.id"), primary_key=True),
+    Column(
+        "facet_id",
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
     Column(
         "education_id",
         UUID(as_uuid=True),
-        ForeignKey("educations.id"),
+        ForeignKey("educations.id", ondelete="CASCADE"),
         primary_key=True,
     ),
 )
@@ -45,16 +56,34 @@ facet_educations = Table(
 facet_skills = Table(
     "facet_skills",
     Base.metadata,
-    Column("facet_id", UUID(as_uuid=True), ForeignKey("facets.id"), primary_key=True),
-    Column("skill_id", UUID(as_uuid=True), ForeignKey("skills.id"), primary_key=True),
+    Column(
+        "facet_id",
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "skill_id",
+        UUID(as_uuid=True),
+        ForeignKey("skills.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 facet_projects = Table(
     "facet_projects",
     Base.metadata,
-    Column("facet_id", UUID(as_uuid=True), ForeignKey("facets.id"), primary_key=True),
     Column(
-        "project_id", UUID(as_uuid=True), ForeignKey("projects.id"), primary_key=True
+        "facet_id",
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "project_id",
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        primary_key=True,
     ),
 )
 
@@ -66,7 +95,10 @@ class BaseProfile(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
     )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -85,7 +117,8 @@ class BaseProfile(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    user: Mapped["User"] = relationship(backref="profile")  # noqa: F821
+    user: Mapped["User"] = relationship(back_populates="profile")  # noqa: F821
+
     experiences: Mapped[list["WorkExperience"]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
@@ -110,7 +143,10 @@ class WorkExperience(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     profile_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("base_profiles.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("base_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     company: Mapped[str] = mapped_column(String(255), nullable=False)
     position: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -137,7 +173,10 @@ class Education(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     profile_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("base_profiles.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("base_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     institution: Mapped[str] = mapped_column(String(255), nullable=False)
     degree: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -164,7 +203,10 @@ class Skill(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     profile_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("base_profiles.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("base_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     category: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -187,7 +229,10 @@ class Certification(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     profile_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("base_profiles.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("base_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     issuer: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -209,7 +254,10 @@ class Project(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     profile_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("base_profiles.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("base_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -241,7 +289,10 @@ class ProjectImage(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     project_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     image_url: Mapped[str] = mapped_column(String(500), nullable=False)
     caption: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -260,7 +311,10 @@ class ProjectAttachment(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     project_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     file_url: Mapped[str] = mapped_column(String(500), nullable=False)
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -280,11 +334,14 @@ class Facet(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False, index=True
+        String(255), nullable=False, index=True
     )
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -303,7 +360,8 @@ class Facet(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    user: Mapped["User"] = relationship(backref="facets")  # noqa: F821
+    user: Mapped["User"] = relationship(back_populates="facets")  # noqa: F821
+
     selected_experiences: Mapped[list["WorkExperience"]] = relationship(
         secondary="facet_work_experiences", backref="facets"
     )
@@ -315,4 +373,8 @@ class Facet(Base):
     )
     selected_projects: Mapped[list["Project"]] = relationship(
         secondary="facet_projects", backref="facets"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),
     )

@@ -20,4 +20,9 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    # Relationships set up via backref in profile.py and facet.py
+    profile: Mapped["BaseProfile"] = relationship(  # noqa: F821
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+    facets: Mapped[list["Facet"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )

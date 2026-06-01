@@ -1,21 +1,21 @@
 """add domain models
 
-Revision ID: 4e74901105db
+Revision ID: 4cb2bcd314b3
 Revises: 0001
-Create Date: 2026-06-01 17:23:44.789479
+Create Date: 2026-06-01 17:32:14.027166
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '4e74901105db'
-down_revision: Union[str, Sequence[str], None] = '0001'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision: str = '4cb2bcd314b3'
+down_revision: str | Sequence[str] | None = '0001'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -36,7 +36,7 @@ def upgrade() -> None:
     sa.Column('github_url', sa.String(length=500), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
     )
@@ -53,10 +53,12 @@ def upgrade() -> None:
     sa.Column('is_published', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'slug', name='uq_facet_slug_per_user')
     )
-    op.create_index(op.f('ix_facets_slug'), 'facets', ['slug'], unique=True)
+    op.create_index(op.f('ix_facets_slug'), 'facets', ['slug'], unique=False)
+    op.create_index(op.f('ix_facets_user_id'), 'facets', ['user_id'], unique=False)
     op.create_table('certifications',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -67,9 +69,10 @@ def upgrade() -> None:
     sa.Column('credential_url', sa.String(length=500), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ),
+    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_certifications_profile_id'), 'certifications', ['profile_id'], unique=False)
     op.create_table('educations',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -83,9 +86,10 @@ def upgrade() -> None:
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ),
+    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_educations_profile_id'), 'educations', ['profile_id'], unique=False)
     op.create_table('projects',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -98,9 +102,10 @@ def upgrade() -> None:
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ),
+    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_projects_profile_id'), 'projects', ['profile_id'], unique=False)
     op.create_table('skills',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -110,9 +115,10 @@ def upgrade() -> None:
     sa.Column('is_transversal', sa.Boolean(), nullable=False),
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ),
+    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_skills_profile_id'), 'skills', ['profile_id'], unique=False)
     op.create_table('work_experiences',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -126,35 +132,36 @@ def upgrade() -> None:
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ),
+    sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_work_experiences_profile_id'), 'work_experiences', ['profile_id'], unique=False)
     op.create_table('facet_educations',
     sa.Column('facet_id', sa.UUID(), nullable=False),
     sa.Column('education_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['education_id'], ['educations.id'], ),
-    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ),
+    sa.ForeignKeyConstraint(['education_id'], ['educations.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('facet_id', 'education_id')
     )
     op.create_table('facet_projects',
     sa.Column('facet_id', sa.UUID(), nullable=False),
     sa.Column('project_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
+    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('facet_id', 'project_id')
     )
     op.create_table('facet_skills',
     sa.Column('facet_id', sa.UUID(), nullable=False),
     sa.Column('skill_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ),
-    sa.ForeignKeyConstraint(['skill_id'], ['skills.id'], ),
+    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['skill_id'], ['skills.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('facet_id', 'skill_id')
     )
     op.create_table('facet_work_experiences',
     sa.Column('facet_id', sa.UUID(), nullable=False),
     sa.Column('work_experience_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ),
-    sa.ForeignKeyConstraint(['work_experience_id'], ['work_experiences.id'], ),
+    sa.ForeignKeyConstraint(['facet_id'], ['facets.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['work_experience_id'], ['work_experiences.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('facet_id', 'work_experience_id')
     )
     op.create_table('project_attachments',
@@ -165,9 +172,10 @@ def upgrade() -> None:
     sa.Column('mime_type', sa.String(length=100), nullable=False),
     sa.Column('file_size', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_project_attachments_project_id'), 'project_attachments', ['project_id'], unique=False)
     op.create_table('project_images',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('project_id', sa.UUID(), nullable=False),
@@ -175,26 +183,35 @@ def upgrade() -> None:
     sa.Column('caption', sa.String(length=255), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_project_images_project_id'), 'project_images', ['project_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_project_images_project_id'), table_name='project_images')
     op.drop_table('project_images')
+    op.drop_index(op.f('ix_project_attachments_project_id'), table_name='project_attachments')
     op.drop_table('project_attachments')
     op.drop_table('facet_work_experiences')
     op.drop_table('facet_skills')
     op.drop_table('facet_projects')
     op.drop_table('facet_educations')
+    op.drop_index(op.f('ix_work_experiences_profile_id'), table_name='work_experiences')
     op.drop_table('work_experiences')
+    op.drop_index(op.f('ix_skills_profile_id'), table_name='skills')
     op.drop_table('skills')
+    op.drop_index(op.f('ix_projects_profile_id'), table_name='projects')
     op.drop_table('projects')
+    op.drop_index(op.f('ix_educations_profile_id'), table_name='educations')
     op.drop_table('educations')
+    op.drop_index(op.f('ix_certifications_profile_id'), table_name='certifications')
     op.drop_table('certifications')
+    op.drop_index(op.f('ix_facets_user_id'), table_name='facets')
     op.drop_index(op.f('ix_facets_slug'), table_name='facets')
     op.drop_table('facets')
     op.drop_table('base_profiles')
