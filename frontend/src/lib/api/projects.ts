@@ -1,0 +1,60 @@
+import { apiClient } from "@/lib/api-client";
+
+export interface ProjectImage {
+  id: string;
+  project_id: string;
+  image_url: string;
+  caption: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ProjectAttachment {
+  id: string;
+  project_id: string;
+  file_url: string;
+  filename: string;
+  mime_type: string;
+  file_size: number;
+  created_at: string;
+}
+
+export interface Project {
+  id: string;
+  profile_id: string;
+  title: string;
+  description: string | null;
+  cover_image_url: string | null;
+  markdown_content: string | null;
+  github_url: string | null;
+  live_url: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  images: ProjectImage[];
+  attachments: ProjectAttachment[];
+}
+
+function getAuthHeaders(): Record<string, string> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
+  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
+}
+
+export const projectsApi = {
+  list: () => apiClient.get<Project[]>("/api/projects", withAuth()),
+
+  get: (id: string) => apiClient.get<Project>(`/api/projects/${id}`, withAuth()),
+
+  create: (data: Partial<Project>) =>
+    apiClient.post<Project>("/api/projects", data, withAuth()),
+
+  update: (id: string, data: Partial<Project>) =>
+    apiClient.put<Project>(`/api/projects/${id}`, data, withAuth()),
+
+  delete: (id: string) =>
+    apiClient.delete(`/api/projects/${id}`, withAuth()),
+};
