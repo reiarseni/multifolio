@@ -30,3 +30,6 @@ out/
 # OS
 .DS_Store
 Thumbs.db
+
+/.opencode/plans/*
+/.opencode/*
