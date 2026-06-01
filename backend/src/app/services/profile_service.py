@@ -3,6 +3,7 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.profile import (
     BaseProfile,
@@ -14,38 +15,77 @@ from app.models.profile import (
 from app.schemas.profile import (
     BaseProfileUpdate,
     CertificationCreate,
+    CertificationUpdate,
     EducationCreate,
+    EducationUpdate,
     SkillCreate,
+    SkillUpdate,
     WorkExperienceCreate,
+    WorkExperienceUpdate,
 )
 
 
+<<<<<<< HEAD
 async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
     result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
     profile = result.scalar_one_or_none()
     if profile is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+=======
+async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile | None:
+    result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
+    return result.scalar_one_or_none()
+
+
+async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+    profile = await _get_profile(db, user_id)
+    if profile is not None:
+        return profile
+    profile = BaseProfile(user_id=user_id, full_name="")
+    db.add(profile)
+    await db.commit()
+    await db.refresh(profile)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     return profile
 
 
 async def get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
 
     for attr in ("experiences", "educations", "skills", "certifications"):
         await db.run_sync(lambda _: getattr(profile, attr))
 
+=======
+    result = await db.execute(
+        select(BaseProfile)
+        .where(BaseProfile.user_id == user_id)
+        .options(
+            selectinload(BaseProfile.experiences),
+            selectinload(BaseProfile.educations),
+            selectinload(BaseProfile.skills),
+            selectinload(BaseProfile.certifications),
+        )
+    )
+    profile = result.scalar_one_or_none()
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     return profile
 
 
 async def update_profile(
     db: AsyncSession, user_id: uuid.UUID, data: BaseProfileUpdate
 ) -> BaseProfile:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
 
+=======
+    profile = await _get_or_create_profile(db, user_id)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(profile, field, value)
-
     await db.commit()
     await db.refresh(profile)
     return profile
@@ -54,7 +94,11 @@ async def update_profile(
 async def add_experience(
     db: AsyncSession, user_id: uuid.UUID, data: WorkExperienceCreate
 ) -> WorkExperience:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+    profile = await _get_or_create_profile(db, user_id)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     experience = WorkExperience(profile_id=profile.id, **data.model_dump())
     db.add(experience)
     await db.commit()
@@ -63,20 +107,21 @@ async def add_experience(
 
 
 async def update_experience(
-    db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID, data: WorkExperienceCreate
+    db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID, data: WorkExperienceUpdate
 ) -> WorkExperience:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     result = await db.execute(
-        select(WorkExperience).where(
-            WorkExperience.id == experience_id,
-            WorkExperience.profile_id == profile.id,
-        )
+        select(WorkExperience)
+        .join(BaseProfile, WorkExperience.profile_id == BaseProfile.id)
+        .where(WorkExperience.id == experience_id, BaseProfile.user_id == user_id)
     )
     exp = result.scalar_one_or_none()
     if not exp:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-    for field, value in data.model_dump().items():
+    for field, value in data.model_dump(exclude_unset=True).items():
         setattr(exp, field, value)
     await db.commit()
     await db.refresh(exp)
@@ -84,12 +129,14 @@ async def update_experience(
 
 
 async def delete_experience(db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID) -> None:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     result = await db.execute(
-        select(WorkExperience).where(
-            WorkExperience.id == experience_id,
-            WorkExperience.profile_id == profile.id,
-        )
+        select(WorkExperience)
+        .join(BaseProfile, WorkExperience.profile_id == BaseProfile.id)
+        .where(WorkExperience.id == experience_id, BaseProfile.user_id == user_id)
     )
     exp = result.scalar_one_or_none()
     if not exp:
@@ -99,7 +146,11 @@ async def delete_experience(db: AsyncSession, user_id: uuid.UUID, experience_id:
 
 
 async def add_education(db: AsyncSession, user_id: uuid.UUID, data: EducationCreate) -> Education:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+    profile = await _get_or_create_profile(db, user_id)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     education = Education(profile_id=profile.id, **data.model_dump())
     db.add(education)
     await db.commit()
@@ -108,19 +159,21 @@ async def add_education(db: AsyncSession, user_id: uuid.UUID, data: EducationCre
 
 
 async def update_education(
-    db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID, data: EducationCreate
+    db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID, data: EducationUpdate
 ) -> Education:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     result = await db.execute(
-        select(Education).where(
-            Education.id == education_id,
-            Education.profile_id == profile.id,
-        )
+        select(Education)
+        .join(BaseProfile, Education.profile_id == BaseProfile.id)
+        .where(Education.id == education_id, BaseProfile.user_id == user_id)
     )
     edu = result.scalar_one_or_none()
     if not edu:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    for field, value in data.model_dump().items():
+    for field, value in data.model_dump(exclude_unset=True).items():
         setattr(edu, field, value)
     await db.commit()
     await db.refresh(edu)
@@ -128,12 +181,14 @@ async def update_education(
 
 
 async def delete_education(db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID) -> None:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     result = await db.execute(
-        select(Education).where(
-            Education.id == education_id,
-            Education.profile_id == profile.id,
-        )
+        select(Education)
+        .join(BaseProfile, Education.profile_id == BaseProfile.id)
+        .where(Education.id == education_id, BaseProfile.user_id == user_id)
     )
     edu = result.scalar_one_or_none()
     if not edu:
@@ -143,7 +198,11 @@ async def delete_education(db: AsyncSession, user_id: uuid.UUID, education_id: u
 
 
 async def add_skill(db: AsyncSession, user_id: uuid.UUID, data: SkillCreate) -> Skill:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+    profile = await _get_or_create_profile(db, user_id)
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     skill = Skill(profile_id=profile.id, **data.model_dump())
     db.add(skill)
     await db.commit()
@@ -152,19 +211,21 @@ async def add_skill(db: AsyncSession, user_id: uuid.UUID, data: SkillCreate) -> 
 
 
 async def update_skill(
-    db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID, data: SkillCreate
+    db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID, data: SkillUpdate
 ) -> Skill:
+<<<<<<< HEAD
     profile = await _get_profile(db, user_id)
+=======
+>>>>>>> 08ef175 (feat: lógica de actualización y eliminación en el perfil)
     result = await db.execute(
-        select(Skill).where(
-            Skill.id == skill_id,
-            Skill.profile_id == profile.id,
-        )
+        select(Skill)
+        .join(BaseProfile, Skill.profile_id == BaseProfile.id)
+        .where(Skill.id == skill_id, BaseProfile.user_id == user_id)
     )
     skill = result.scalar_one_or_none()
     if not skill:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    for field, value in data.model_dump().items():
+    for field, value in data.model_dump(exclude_unset=True).items():
         setattr(skill, field, value)
     await db.commit()
     await db.refresh(skill)
@@ -172,12 +233,10 @@ async def update_skill(
 
 
 async def delete_skill(db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID) -> None:
-    profile = await _get_profile(db, user_id)
     result = await db.execute(
-        select(Skill).where(
-            Skill.id == skill_id,
-            Skill.profile_id == profile.id,
-        )
+        select(Skill)
+        .join(BaseProfile, Skill.profile_id == BaseProfile.id)
+        .where(Skill.id == skill_id, BaseProfile.user_id == user_id)
     )
     skill = result.scalar_one_or_none()
     if not skill:
@@ -189,7 +248,7 @@ async def delete_skill(db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID
 async def add_certification(
     db: AsyncSession, user_id: uuid.UUID, data: CertificationCreate
 ) -> Certification:
-    profile = await _get_profile(db, user_id)
+    profile = await _get_or_create_profile(db, user_id)
     cert = Certification(profile_id=profile.id, **data.model_dump())
     db.add(cert)
     await db.commit()
@@ -198,19 +257,17 @@ async def add_certification(
 
 
 async def update_certification(
-    db: AsyncSession, user_id: uuid.UUID, cert_id: uuid.UUID, data: CertificationCreate
+    db: AsyncSession, user_id: uuid.UUID, cert_id: uuid.UUID, data: CertificationUpdate
 ) -> Certification:
-    profile = await _get_profile(db, user_id)
     result = await db.execute(
-        select(Certification).where(
-            Certification.id == cert_id,
-            Certification.profile_id == profile.id,
-        )
+        select(Certification)
+        .join(BaseProfile, Certification.profile_id == BaseProfile.id)
+        .where(Certification.id == cert_id, BaseProfile.user_id == user_id)
     )
     cert = result.scalar_one_or_none()
     if not cert:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    for field, value in data.model_dump().items():
+    for field, value in data.model_dump(exclude_unset=True).items():
         setattr(cert, field, value)
     await db.commit()
     await db.refresh(cert)
@@ -218,12 +275,10 @@ async def update_certification(
 
 
 async def delete_certification(db: AsyncSession, user_id: uuid.UUID, cert_id: uuid.UUID) -> None:
-    profile = await _get_profile(db, user_id)
     result = await db.execute(
-        select(Certification).where(
-            Certification.id == cert_id,
-            Certification.profile_id == profile.id,
-        )
+        select(Certification)
+        .join(BaseProfile, Certification.profile_id == BaseProfile.id)
+        .where(Certification.id == cert_id, BaseProfile.user_id == user_id)
     )
     cert = result.scalar_one_or_none()
     if not cert:
