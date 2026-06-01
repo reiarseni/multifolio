@@ -7,9 +7,9 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<BaseProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     full_name: "",
-    email: "",
     phone: "",
     location: "",
     title: "",
@@ -20,21 +20,22 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    profileApi.get().then((data) => {
-      setProfile(data);
-      setForm({
-        full_name: data.full_name ?? "",
-        email: data.email ?? "",
-        phone: data.phone ?? "",
-        location: data.location ?? "",
-        title: data.title ?? "",
-        bio: data.bio ?? "",
-        website: data.website ?? "",
-        linkedin_url: data.linkedin_url ?? "",
-        github_url: data.github_url ?? "",
-      });
-      setLoading(false);
-    });
+    profileApi.get()
+      .then((data) => {
+        setProfile(data);
+        setForm({
+          full_name: data.full_name ?? "",
+          phone: data.phone ?? "",
+          location: data.location ?? "",
+          title: data.title ?? "",
+          bio: data.bio ?? "",
+          website: data.website ?? "",
+          linkedin_url: data.linkedin_url ?? "",
+          github_url: data.github_url ?? "",
+        });
+      })
+      .catch(() => setError("No se pudo cargar el perfil"))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
@@ -72,6 +73,10 @@ export default function ProfilePage() {
     return <div className="text-muted-foreground">Loading...</div>;
   }
 
+  if (error) {
+    return <div className="text-destructive">{error}</div>;
+  }
+
   return (
     <div className="max-w-3xl space-y-8">
       <h1 className="text-2xl font-bold">Perfil</h1>
@@ -85,14 +90,6 @@ export default function ProfilePage() {
               className="w-full border rounded-md px-3 py-2 text-sm"
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="text-sm text-muted-foreground">Email</label>
-            <input
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div>
@@ -249,7 +246,7 @@ export default function ProfilePage() {
   );
 }
 
-function SectionList<T>({
+function SectionList<T extends { id: string }>({
   title,
   items,
   renderItem,
@@ -265,8 +262,8 @@ function SectionList<T>({
         <p className="text-sm text-muted-foreground">No hay elementos.</p>
       ) : (
         <div className="space-y-2">
-          {items.map((item, i) => (
-            <div key={i} className="border rounded-md p-3">
+          {items.map((item) => (
+            <div key={item.id} className="border rounded-md p-3">
               {renderItem(item)}
             </div>
           ))}
