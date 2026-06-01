@@ -1,5 +1,9 @@
 import uuid
 
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.profile import (
     BaseProfile,
     Certification,
@@ -14,15 +18,10 @@ from app.schemas.profile import (
     SkillCreate,
     WorkExperienceCreate,
 )
-from fastapi import HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
-    result = await db.execute(
-        select(BaseProfile).where(BaseProfile.user_id == user_id)
-    )
+    result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
     profile = result.scalar_one_or_none()
     if profile is None:
         profile = BaseProfile(
@@ -91,9 +90,7 @@ async def update_experience(
     return exp
 
 
-async def delete_experience(
-    db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID
-) -> None:
+async def delete_experience(db: AsyncSession, user_id: uuid.UUID, experience_id: uuid.UUID) -> None:
     profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(WorkExperience).where(
@@ -108,9 +105,7 @@ async def delete_experience(
     await db.commit()
 
 
-async def add_education(
-    db: AsyncSession, user_id: uuid.UUID, data: EducationCreate
-) -> Education:
+async def add_education(db: AsyncSession, user_id: uuid.UUID, data: EducationCreate) -> Education:
     profile = await get_or_create_profile(db, user_id)
     education = Education(profile_id=profile.id, **data.model_dump())
     db.add(education)
@@ -139,9 +134,7 @@ async def update_education(
     return edu
 
 
-async def delete_education(
-    db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID
-) -> None:
+async def delete_education(db: AsyncSession, user_id: uuid.UUID, education_id: uuid.UUID) -> None:
     profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Education).where(
@@ -156,9 +149,7 @@ async def delete_education(
     await db.commit()
 
 
-async def add_skill(
-    db: AsyncSession, user_id: uuid.UUID, data: SkillCreate
-) -> Skill:
+async def add_skill(db: AsyncSession, user_id: uuid.UUID, data: SkillCreate) -> Skill:
     profile = await get_or_create_profile(db, user_id)
     skill = Skill(profile_id=profile.id, **data.model_dump())
     db.add(skill)
@@ -187,9 +178,7 @@ async def update_skill(
     return skill
 
 
-async def delete_skill(
-    db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID
-) -> None:
+async def delete_skill(db: AsyncSession, user_id: uuid.UUID, skill_id: uuid.UUID) -> None:
     profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Skill).where(
@@ -235,9 +224,7 @@ async def update_certification(
     return cert
 
 
-async def delete_certification(
-    db: AsyncSession, user_id: uuid.UUID, cert_id: uuid.UUID
-) -> None:
+async def delete_certification(db: AsyncSession, user_id: uuid.UUID, cert_id: uuid.UUID) -> None:
     profile = await get_or_create_profile(db, user_id)
     result = await db.execute(
         select(Certification).where(
