@@ -34,8 +34,10 @@ def upgrade() -> None:
     sa.Column('website', sa.String(length=500), nullable=True),
     sa.Column('linkedin_url', sa.String(length=500), nullable=True),
     sa.Column('github_url', sa.String(length=500), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
@@ -51,8 +53,10 @@ def upgrade() -> None:
     sa.Column('meta_description', sa.String(length=500), nullable=True),
     sa.Column('pdf_template', sa.String(length=50), nullable=False),
     sa.Column('is_published', sa.Boolean(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'slug', name='uq_facet_slug_per_user')
@@ -68,11 +72,13 @@ def upgrade() -> None:
     sa.Column('expiry_date', sa.Date(), nullable=True),
     sa.Column('credential_url', sa.String(length=500), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_certifications_profile_id'), 'certifications', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_certifications_profile_id'), 'certifications',
+                    ['profile_id'], unique=False)
     op.create_table('educations',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -84,12 +90,15 @@ def upgrade() -> None:
     sa.Column('end_date', sa.Date(), nullable=True),
     sa.Column('is_current', sa.Boolean(), nullable=False),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_educations_profile_id'), 'educations', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_educations_profile_id'), 'educations',
+                    ['profile_id'], unique=False)
     op.create_table('projects',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -100,12 +109,15 @@ def upgrade() -> None:
     sa.Column('github_url', sa.String(length=500), nullable=True),
     sa.Column('live_url', sa.String(length=500), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_projects_profile_id'), 'projects', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_projects_profile_id'), 'projects',
+                    ['profile_id'], unique=False)
     op.create_table('skills',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -114,11 +126,13 @@ def upgrade() -> None:
     sa.Column('level', sa.String(length=50), nullable=True),
     sa.Column('is_transversal', sa.Boolean(), nullable=False),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_skills_profile_id'), 'skills', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_skills_profile_id'), 'skills',
+                    ['profile_id'], unique=False)
     op.create_table('work_experiences',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('profile_id', sa.UUID(), nullable=False),
@@ -130,12 +144,15 @@ def upgrade() -> None:
     sa.Column('is_current', sa.Boolean(), nullable=False),
     sa.Column('location', sa.String(length=255), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['profile_id'], ['base_profiles.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_work_experiences_profile_id'), 'work_experiences', ['profile_id'], unique=False)
+    op.create_index(op.f('ix_work_experiences_profile_id'), 'work_experiences',
+                    ['profile_id'], unique=False)
     op.create_table('facet_educations',
     sa.Column('facet_id', sa.UUID(), nullable=False),
     sa.Column('education_id', sa.UUID(), nullable=False),
@@ -171,22 +188,26 @@ def upgrade() -> None:
     sa.Column('filename', sa.String(length=255), nullable=False),
     sa.Column('mime_type', sa.String(length=100), nullable=False),
     sa.Column('file_size', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_project_attachments_project_id'), 'project_attachments', ['project_id'], unique=False)
+    op.create_index(op.f('ix_project_attachments_project_id'), 'project_attachments',
+                    ['project_id'], unique=False)
     op.create_table('project_images',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('project_id', sa.UUID(), nullable=False),
     sa.Column('image_url', sa.String(length=500), nullable=False),
     sa.Column('caption', sa.String(length=255), nullable=True),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True),
+               server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_project_images_project_id'), 'project_images', ['project_id'], unique=False)
+    op.create_index(op.f('ix_project_images_project_id'), 'project_images',
+                    ['project_id'], unique=False)
     # ### end Alembic commands ###
 
 
