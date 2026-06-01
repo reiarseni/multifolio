@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class FacetBase(BaseModel):
@@ -56,3 +56,18 @@ class FacetResponse(BaseModel):
     project_ids: list[uuid.UUID] = []
 
     model_config = {"from_attributes": True}
+
+    @model_validator(mode="before")
+    @classmethod
+    def extract_ids(cls, data):
+        attrs = {
+            "selected_experiences": "experience_ids",
+            "selected_educations": "education_ids",
+            "selected_skills": "skill_ids",
+            "selected_projects": "project_ids",
+        }
+        for orm_attr, schema_attr in attrs.items():
+            items = getattr(data, orm_attr, None)
+            if items is not None:
+                setattr(data, schema_attr, [item.id for item in items])
+        return data
