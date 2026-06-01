@@ -1,4 +1,4 @@
-"""fix facet models — slug validation, back_populates, certifications, unique email
+"""fix facet models and remove duplicated email from base_profiles
 
 Revision ID: 4cb2bcd314b4
 Revises: 4cb2bcd314b3
@@ -40,12 +40,14 @@ def upgrade() -> None:
                    server_default=sa.text('now()'), nullable=False)
     )
 
-    # Add unique constraint on base_profiles.email
-    op.create_unique_constraint('uq_base_profile_email', 'base_profiles', ['email'])
+    # Remove duplicated email — se obtiene de user.email
+    op.drop_column('base_profiles', 'email')
 
 
 def downgrade() -> None:
-    op.drop_constraint('uq_base_profile_email', 'base_profiles', type_='unique')
+    op.add_column('base_profiles',
+        sa.Column('email', sa.String(length=255), nullable=False)
+    )
     op.drop_column('certifications', 'updated_at')
     op.drop_column('skills', 'updated_at')
     op.drop_table('facet_certifications')

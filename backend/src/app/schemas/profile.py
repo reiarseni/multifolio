@@ -1,7 +1,8 @@
 import uuid
 from datetime import date, datetime
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class WorkExperienceBase(BaseModel):
@@ -95,7 +96,6 @@ class CertificationResponse(CertificationBase):
 
 class BaseProfileUpdate(BaseModel):
     full_name: str | None = None
-    email: str | None = None
     phone: str | None = None
     location: str | None = None
     title: str | None = None
@@ -127,3 +127,29 @@ class BaseProfileResponse(BaseModel):
     certifications: list[CertificationResponse] = []
 
     model_config = {"from_attributes": True}
+
+    @model_validator(mode="before")
+    @classmethod
+    def _inject_user_email(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return data
+        return {
+            "id": data.id,
+            "user_id": data.user_id,
+            "full_name": data.full_name,
+            "email": data.user.email,
+            "phone": data.phone,
+            "location": data.location,
+            "title": data.title,
+            "bio": data.bio,
+            "photo_url": data.photo_url,
+            "website": data.website,
+            "linkedin_url": data.linkedin_url,
+            "github_url": data.github_url,
+            "created_at": data.created_at,
+            "updated_at": data.updated_at,
+            "experiences": data.experiences,
+            "educations": data.educations,
+            "skills": data.skills,
+            "certifications": data.certifications,
+        }

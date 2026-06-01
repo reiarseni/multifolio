@@ -118,7 +118,7 @@ class BaseProfile(Base):
         nullable=False,
     )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    # email se obtiene de user.email — no se almacena duplicado
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -152,9 +152,7 @@ class BaseProfile(Base):
         back_populates="profile", cascade="all, delete-orphan"
     )
 
-    __table_args__ = (
-        UniqueConstraint("email", name="uq_base_profile_email"),
-    )
+    __table_args__ = ()
 
 
 class WorkExperience(Base):
