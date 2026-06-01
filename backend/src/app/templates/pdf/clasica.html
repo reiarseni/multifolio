@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 2.5cm; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4; color: #000; }
+  h1 { font-size: 18pt; margin-bottom: 0; text-align: center; }
+  .title { font-size: 12pt; color: #333; text-align: center; margin-top: 2px; }
+  .contact { font-size: 9pt; text-align: center; color: #444; margin-top: 4px; border-bottom: 1px solid #000; padding-bottom: 8px; }
+  h2 { font-size: 12pt; border-bottom: 1px solid #000; padding-bottom: 2px; margin-top: 14px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .item { margin-bottom: 8px; }
+  .item-title { font-weight: 700; font-size: 11pt; }
+  .item-sub { font-size: 10pt; font-style: italic; }
+  .item-date { font-size: 9pt; color: #555; }
+  .item-desc { font-size: 10pt; margin-top: 1px; }
+  .skill-item { font-size: 10pt; display: inline; }
+  .skill-item:not(:last-child)::after { content: "  |  "; }
+</style>
+</head>
+<body>
+  <h1>{{ full_name }}</h1>
+  {% if title %}<div class="title">{{ title }}</div>{% endif %}
+  <div class="contact">
+    {{ email }}{% if phone %} | {{ phone }}{% endif %}{% if website %} | {{ website }}{% endif %}
+  </div>
+
+  {% if bio %}
+  <p style="font-size:10pt;">{{ bio }}</p>
+  {% endif %}
+
+  {% if experiences %}
+  <h2>Experiencia</h2>
+  {% for exp in experiences %}
+  <div class="item">
+    <div class="item-title">{{ exp.position }}</div>
+    <div class="item-sub">{{ exp.company }}</div>
+    <div class="item-date">{{ exp.start_date }} – {% if exp.is_current %}Presente{% else %}{{ exp.end_date }}{% endif %}</div>
+    {% if exp.description %}<div class="item-desc">{{ exp.description }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if educations %}
+  <h2>Educación</h2>
+  {% for edu in educations %}
+  <div class="item">
+    <div class="item-title">{{ edu.degree }}</div>
+    <div class="item-sub">{{ edu.institution }}{% if edu.field %} — {{ edu.field }}{% endif %}</div>
+    <div class="item-date">{{ edu.start_date }} – {% if edu.is_current %}Presente{% else %}{{ edu.end_date }}{% endif %}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if skills %}
+  <h2>Habilidades</h2>
+  <div>
+    {% for skill in skills %}
+    <span class="skill-item">{{ skill.name }}{% if skill.level %} ({{ skill.level }}){% endif %}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</body>
+</html>
