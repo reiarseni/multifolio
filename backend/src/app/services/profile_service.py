@@ -27,6 +27,7 @@ async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return profile
 
+
 async def get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
     profile = await _get_profile(db, user_id)
 
