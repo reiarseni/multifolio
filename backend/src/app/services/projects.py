@@ -9,11 +9,17 @@ from app.models.profile import BaseProfile, Project
 from app.schemas.project import ProjectCreate, ProjectUpdate
 
 
-async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile | None:
     result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
-    profile = result.scalar_one_or_none()
+    return result.scalar_one_or_none()
+
+
+async def _ensure_profile(
+    db: AsyncSession, user_id: uuid.UUID, user_email: str = ""
+) -> BaseProfile:
+    profile = await _get_profile(db, user_id)
     if profile is None:
-        profile = BaseProfile(user_id=user_id, full_name="", email="")
+        profile = BaseProfile(user_id=user_id, full_name="", email=user_email)
         db.add(profile)
         await db.commit()
         await db.refresh(profile)
@@ -21,7 +27,9 @@ async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BasePr
 
 
 async def _get_user_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUID) -> Project:
-    profile = await _get_or_create_profile(db, user_id)
+    profile = await _get_profile(db, user_id)
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     result = await db.execute(
         select(Project)
         .where(Project.id == project_id, Project.profile_id == profile.id)
@@ -34,7 +42,9 @@ async def _get_user_project(db: AsyncSession, user_id: uuid.UUID, project_id: uu
 
 
 async def list_projects(db: AsyncSession, user_id: uuid.UUID) -> list[Project]:
-    profile = await _get_or_create_profile(db, user_id)
+    profile = await _get_profile(db, user_id)
+    if profile is None:
+        return []
     result = await db.execute(
         select(Project)
         .where(Project.profile_id == profile.id)
@@ -48,8 +58,10 @@ async def get_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUI
     return await _get_user_project(db, user_id, project_id)
 
 
-async def create_project(db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate) -> Project:
-    profile = await _get_or_create_profile(db, user_id)
+async def create_project(
+    db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate, user_email: str = ""
+) -> Project:
+    profile = await _ensure_profile(db, user_id, user_email)
     project = Project(profile_id=profile.id, **data.model_dump())
     db.add(project)
     await db.commit()
@@ -70,7 +82,12 @@ async def update_project(
         setattr(project, field, value)
     await db.commit()
     await db.refresh(project)
-    return project
+    result = await db.execute(
+        select(Project)
+        .where(Project.id == project_id)
+        .options(selectinload(Project.images), selectinload(Project.attachments))
+    )
+    return result.scalar_one()
 
 
 async def delete_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUID) -> None:

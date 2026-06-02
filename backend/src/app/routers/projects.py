@@ -1,13 +1,13 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.deps import get_current_user
 from app.db.session import get_db_session
-from app.models.profile import Project
+from app.models.profile import Facet, Project, facet_projects
 from app.models.user import User
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 from app.services import projects as projects_service
@@ -22,13 +22,13 @@ async def get_public_project(
 ):
     result = await db.execute(
         select(Project)
-        .where(Project.id == project_id)
+        .join(facet_projects, Project.id == facet_projects.c.project_id)
+        .join(Facet, Facet.id == facet_projects.c.facet_id)
+        .where(Project.id == project_id, Facet.is_published)
         .options(selectinload(Project.images), selectinload(Project.attachments))
     )
     project = result.scalar_one_or_none()
     if not project:
-        from fastapi import HTTPException, status
-
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return project
 
@@ -56,7 +56,7 @@ async def create_project(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ):
-    return await projects_service.create_project(db, current_user.id, body)
+    return await projects_service.create_project(db, current_user.id, body, current_user.email)
 
 
 @router.put("/{project_id}", response_model=ProjectResponse)
