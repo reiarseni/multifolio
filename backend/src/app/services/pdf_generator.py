@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -17,5 +18,5 @@ async def generate_facet_pdf(db, slug: str) -> bytes:
         template_name = "moderna"
     template = env.get_template(f"{template_name}.html")
     html_str = template.render(**data)
-    pdf_bytes = HTML(string=html_str).write_pdf()
+    pdf_bytes = await asyncio.to_thread(lambda: HTML(string=html_str).write_pdf())
     return pdf_bytes
