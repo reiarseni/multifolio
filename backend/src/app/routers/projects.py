@@ -56,7 +56,7 @@ async def create_project(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ):
-    return await projects_service.create_project(db, current_user.id, body)
+    return await projects_service.create_project(db, current_user.id, body, current_user.email)
 
 
 @router.put("/{project_id}", response_model=ProjectResponse)
