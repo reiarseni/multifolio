@@ -31,7 +31,7 @@ async def test_list_facets(client: AsyncClient, auth_tokens):
     await test_create_facet(client, auth_tokens)
 
     resp = await client.get("/api/facets", headers=headers)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     data = resp.json()
     assert len(data) >= 1
     assert data[0]["name"] == "Backend Developer"
@@ -44,7 +44,7 @@ async def test_get_facet(client: AsyncClient, auth_tokens):
     created = await test_create_facet(client, auth_tokens)
 
     resp = await client.get(f"/api/facets/{created['id']}", headers=headers)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     assert resp.json()["id"] == created["id"]
 
 
@@ -59,7 +59,7 @@ async def test_update_facet(client: AsyncClient, auth_tokens):
         json={"name": "Senior Backend Developer", "is_published": True},
         headers=headers,
     )
-    assert resp.status_code == 200
+    assert resp.status_code == 204
     data = resp.json()
     assert data["name"] == "Senior Backend Developer"
     assert data["is_published"] is True
@@ -72,7 +72,7 @@ async def test_delete_facet(client: AsyncClient, auth_tokens):
     created = await test_create_facet(client, auth_tokens)
 
     resp = await client.delete(f"/api/facets/{created['id']}", headers=headers)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
     resp = await client.get(f"/api/facets/{created['id']}", headers=headers)
     assert resp.status_code == 404
