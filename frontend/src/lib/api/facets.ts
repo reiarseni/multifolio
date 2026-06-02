@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { getToken } from "@/lib/auth/token";
 
 export interface Facet {
   id: string;
@@ -20,7 +21,7 @@ export interface Facet {
 }
 
 function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const token = typeof window !== "undefined" ? getToken() : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
