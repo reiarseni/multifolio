@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { getToken } from "@/lib/auth/token";
 
 export interface WorkExperience {
   id: string;
@@ -9,7 +10,6 @@ export interface WorkExperience {
   start_date: string;
   end_date: string | null;
   is_current: boolean;
-  location: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -75,7 +75,7 @@ export interface BaseProfile {
 }
 
 function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
