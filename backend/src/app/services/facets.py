@@ -5,19 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.profile import BaseProfile, Education, Facet, Project, Skill, WorkExperience
+from app.models.profile import Education, Facet, Project, Skill, WorkExperience
 from app.schemas.facet import FacetCreate, FacetUpdate
-
-
-async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
-    result = await db.execute(select(BaseProfile).where(BaseProfile.user_id == user_id))
-    profile = result.scalar_one_or_none()
-    if profile is None:
-        profile = BaseProfile(user_id=user_id, full_name="", email="")
-        db.add(profile)
-        await db.commit()
-        await db.refresh(profile)
-    return profile
+from app.services.utils import get_profile_or_404
 
 
 async def _resolve_selected(
@@ -74,7 +64,7 @@ async def get_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID) -
 
 
 async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) -> Facet:
-    profile = await _get_or_create_profile(db, user_id)
+    profile = await get_profile_or_404(db, user_id)
     facet = Facet(
         user_id=user_id,
         name=data.name,
@@ -91,16 +81,16 @@ async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) 
 
     if data.experience_ids:
         items = await _resolve_selected(db, profile.id, data.experience_ids, WorkExperience)
-        await db.run_sync(lambda _: setattr(facet, "selected_experiences", items))
+        facet.selected_experiences = items
     if data.education_ids:
         items = await _resolve_selected(db, profile.id, data.education_ids, Education)
-        await db.run_sync(lambda _: setattr(facet, "selected_educations", items))
+        facet.selected_educations = items
     if data.skill_ids:
         items = await _resolve_selected(db, profile.id, data.skill_ids, Skill)
-        await db.run_sync(lambda _: setattr(facet, "selected_skills", items))
+        facet.selected_skills = items
     if data.project_ids:
         items = await _resolve_selected(db, profile.id, data.project_ids, Project)
-        await db.run_sync(lambda _: setattr(facet, "selected_projects", items))
+        facet.selected_projects = items
 
     await db.commit()
     return await _load_facet(db, user_id, facet.id)
@@ -110,7 +100,7 @@ async def update_facet(
     db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID, data: FacetUpdate
 ) -> Facet:
     facet = await _load_facet(db, user_id, facet_id)
-    profile = await _get_or_create_profile(db, user_id)
+    profile = await get_profile_or_404(db, user_id)
 
     scalar_fields = data.model_dump(
         exclude={"experience_ids", "education_ids", "skill_ids", "project_ids"},
@@ -121,16 +111,16 @@ async def update_facet(
 
     if data.experience_ids is not None:
         items = await _resolve_selected(db, profile.id, data.experience_ids, WorkExperience)
-        await db.run_sync(lambda _: setattr(facet, "selected_experiences", items))
+        facet.selected_experiences = items
     if data.education_ids is not None:
         items = await _resolve_selected(db, profile.id, data.education_ids, Education)
-        await db.run_sync(lambda _: setattr(facet, "selected_educations", items))
+        facet.selected_educations = items
     if data.skill_ids is not None:
         items = await _resolve_selected(db, profile.id, data.skill_ids, Skill)
-        await db.run_sync(lambda _: setattr(facet, "selected_skills", items))
+        facet.selected_skills = items
     if data.project_ids is not None:
         items = await _resolve_selected(db, profile.id, data.project_ids, Project)
-        await db.run_sync(lambda _: setattr(facet, "selected_projects", items))
+        facet.selected_projects = items
 
     await db.commit()
     return await _load_facet(db, user_id, facet.id)

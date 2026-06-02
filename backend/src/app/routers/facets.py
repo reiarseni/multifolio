@@ -48,11 +48,10 @@ async def update_facet(
     return await facets_service.update_facet(db, current_user.id, facet_id, body)
 
 
-@router.delete("/{facet_id}")
+@router.delete("/{facet_id}", status_code=204)
 async def delete_facet(
     facet_id: uuid.UUID,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ):
     await facets_service.delete_facet(db, current_user.id, facet_id)
-    return {"message": "Facet deleted"}
