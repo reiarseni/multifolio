@@ -54,7 +54,9 @@ async def get_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUI
     return await _get_user_project(db, user_id, project_id)
 
 
-async def create_project(db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate, user_email: str = "") -> Project:
+async def create_project(
+    db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate, user_email: str = ""
+) -> Project:
     profile = await _get_profile(db, user_id)
     project = Project(profile_id=profile.id, **data.model_dump())
     db.add(project)
