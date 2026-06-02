@@ -7,8 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.profile import Education, Facet, Project, Skill, WorkExperience
 from app.schemas.facet import FacetCreate, FacetUpdate
-
-
+from app.services.utils import get_profile_or_404
 
 
 async def _resolve_selected(
@@ -65,7 +64,6 @@ async def get_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID) -
 
 
 async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) -> Facet:
-    profile = await get_profile_or_404(db, user_id)
     facet = Facet(
         user_id=user_id,
         name=data.name,
@@ -80,6 +78,8 @@ async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) 
     db.add(facet)
     await db.flush()
 
+    if data.experience_ids or data.education_ids or data.skill_ids or data.project_ids:
+        profile = await get_profile_or_404(db, user_id)
     if data.experience_ids:
         items = await _resolve_selected(db, profile.id, data.experience_ids, WorkExperience)
         facet.selected_experiences = items
@@ -101,7 +101,6 @@ async def update_facet(
     db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID, data: FacetUpdate
 ) -> Facet:
     facet = await _load_facet(db, user_id, facet_id)
-    profile = await get_profile_or_404(db, user_id)
 
     scalar_fields = data.model_dump(
         exclude={"experience_ids", "education_ids", "skill_ids", "project_ids"},
@@ -110,6 +109,9 @@ async def update_facet(
     for field, value in scalar_fields.items():
         setattr(facet, field, value)
 
+    m2m_fields = [data.experience_ids, data.education_ids, data.skill_ids, data.project_ids]
+    if any(x is not None for x in m2m_fields):
+        profile = await get_profile_or_404(db, user_id)
     if data.experience_ids is not None:
         items = await _resolve_selected(db, profile.id, data.experience_ids, WorkExperience)
         facet.selected_experiences = items
