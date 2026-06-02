@@ -17,13 +17,14 @@ async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile | No
 async def _ensure_profile(
     db: AsyncSession, user_id: uuid.UUID, user_email: str = ""
 ) -> BaseProfile:
-    profile = await _ensure_profile(db, user_id, user_email)
+    profile = await _get_profile(db, user_id)
     if profile is None:
         profile = BaseProfile(user_id=user_id, full_name="", email=user_email)
         db.add(profile)
         await db.commit()
         await db.refresh(profile)
     return profile
+
 
 async def _get_user_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUID) -> Project:
     profile = await _get_profile(db, user_id)
@@ -56,7 +57,7 @@ async def get_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUI
 async def create_project(
     db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate, user_email: str = ""
 ) -> Project:
-    profile = await _ensure_profile(db, user_id, user_email)
+    profile = await _get_profile(db, user_id)
     project = Project(profile_id=profile.id, **data.model_dump())
     db.add(project)
     await db.commit()
