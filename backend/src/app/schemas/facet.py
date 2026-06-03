@@ -19,6 +19,7 @@ class FacetCreate(FacetBase):
     experience_ids: list[uuid.UUID] = []
     education_ids: list[uuid.UUID] = []
     skill_ids: list[uuid.UUID] = []
+    certification_ids: list[uuid.UUID] = []
     project_ids: list[uuid.UUID] = []
 
 
@@ -34,6 +35,7 @@ class FacetUpdate(BaseModel):
     experience_ids: list[uuid.UUID] | None = None
     education_ids: list[uuid.UUID] | None = None
     skill_ids: list[uuid.UUID] | None = None
+    certification_ids: list[uuid.UUID] | None = None
     project_ids: list[uuid.UUID] | None = None
 
 
@@ -53,6 +55,7 @@ class FacetResponse(BaseModel):
     experience_ids: list[uuid.UUID] = []
     education_ids: list[uuid.UUID] = []
     skill_ids: list[uuid.UUID] = []
+    certification_ids: list[uuid.UUID] = []
     project_ids: list[uuid.UUID] = []
 
     model_config = {"from_attributes": True}
@@ -64,6 +67,7 @@ class FacetResponse(BaseModel):
             "selected_experiences": "experience_ids",
             "selected_educations": "education_ids",
             "selected_skills": "skill_ids",
+            "selected_certifications": "certification_ids",
             "selected_projects": "project_ids",
         }
         for orm_attr, schema_attr in attrs.items():
