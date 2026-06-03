@@ -6,24 +6,33 @@ import Link from "next/link";
 import { facetsApi, type Facet } from "@/lib/api/facets";
 import { ShareButton } from "@/components/dashboard/ShareButton";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function FacetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [facet, setFacet] = useState<Facet | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    facetsApi.get(id).then((data) => {
-      setFacet(data);
-      setLoading(false);
-    });
+    facetsApi
+      .get(id)
+      .then((data) => {
+        setFacet(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
   }, [id]);
 
   if (loading) return <div className="text-muted-foreground">Loading...</div>;
-  if (!facet) return <div className="text-destructive">Faceta no encontrada</div>;
+  if (error) return <div className="text-destructive">Faceta no encontrada</div>;
+  if (!facet) return null;
 
-  const publicUrl = `${API_URL}/${facet.slug}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const publicUrl = `${origin}/${facet.slug}`;
   const pdfUrl = `${API_URL}/${facet.slug}/pdf`;
 
   return (
