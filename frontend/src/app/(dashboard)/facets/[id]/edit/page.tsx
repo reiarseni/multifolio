@@ -20,22 +20,29 @@ export default function EditFacetPage() {
   });
 
   useEffect(() => {
-    facetsApi.get(id).then((data) => {
-      setFacet(data);
-      setSelected({
-        experience_ids: data.experience_ids ?? [],
-        education_ids: data.education_ids ?? [],
-        skill_ids: data.skill_ids ?? [],
-        project_ids: data.project_ids ?? [],
-      });
-      setLoading(false);
-    });
+    facetsApi
+      .get(id)
+      .then((data) => {
+        setFacet(data);
+        setSelected({
+          experience_ids: data.experience_ids ?? [],
+          education_ids: data.education_ids ?? [],
+          skill_ids: data.skill_ids ?? [],
+          project_ids: data.project_ids ?? [],
+        });
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [id]);
 
   const handleSave = async (data: Partial<Facet>) => {
     setSaving(true);
-    await facetsApi.update(id, { ...data, ...selected });
-    router.push("/facets");
+    try {
+      await facetsApi.update(id, { ...data, ...selected });
+      router.push("/facets");
+    } catch {
+      setSaving(false);
+    }
   };
 
   const handleSelectionChange = (field: string, ids: string[]) => {
