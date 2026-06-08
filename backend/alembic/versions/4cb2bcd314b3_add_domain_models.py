@@ -76,17 +76,6 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-    op.create_table('base_profiles',
-    sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.Column('full_name', sa.String(length=255), nullable=False),
-    sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('phone', sa.String(length=50), nullable=True),ult=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True),
-               server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id', 'slug', name='uq_facet_slug_per_user')
 =======
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
@@ -119,7 +108,8 @@ def upgrade() -> None:
     op.create_table(
         "educations",
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("profile_id", sa.UUID(), nullable=False),
+        sa.Column("profile_id", sa.UUID(), nullable=False
+Auto-fusionando backend/test.db),
         sa.Column("institution", sa.String(length=255), nullable=False),
         sa.Column("degree", sa.String(length=255), nullable=False),
         sa.Column("field", sa.String(length=255), nullable=True),
