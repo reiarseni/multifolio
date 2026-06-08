@@ -28,7 +28,6 @@ class FacetCreate(FacetBase):
     experience_ids: list[uuid.UUID] = []
     education_ids: list[uuid.UUID] = []
     skill_ids: list[uuid.UUID] = []
-    certification_ids: list[uuid.UUID] = []
     project_ids: list[uuid.UUID] = []
     certification_ids: list[uuid.UUID] = []
 
@@ -45,7 +44,6 @@ class FacetUpdate(BaseModel):
     experience_ids: list[uuid.UUID] | None = None
     education_ids: list[uuid.UUID] | None = None
     skill_ids: list[uuid.UUID] | None = None
-    certification_ids: list[uuid.UUID] | None = None
     project_ids: list[uuid.UUID] | None = None
     certification_ids: list[uuid.UUID] | None = None
 
@@ -66,7 +64,6 @@ class FacetResponse(BaseModel):
     experience_ids: list[uuid.UUID] = []
     education_ids: list[uuid.UUID] = []
     skill_ids: list[uuid.UUID] = []
-    certification_ids: list[uuid.UUID] = []
     project_ids: list[uuid.UUID] = []
     certification_ids: list[uuid.UUID] = []
 

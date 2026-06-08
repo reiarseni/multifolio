@@ -70,23 +70,6 @@ facet_skills = Table(
     ),
 )
 
-facet_certifications = Table(
-    "facet_certifications",
-    Base.metadata,
-    Column(
-        "facet_id",
-        UUID(as_uuid=True),
-        ForeignKey("facets.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-    Column(
-        "certification_id",
-        UUID(as_uuid=True),
-        ForeignKey("certifications.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-)
-
 facet_projects = Table(
     "facet_projects",
     Base.metadata,
@@ -387,9 +370,6 @@ class Facet(Base):
     )
     selected_skills: Mapped[list["Skill"]] = relationship(
         secondary="facet_skills", back_populates="facets"
-    )
-    selected_certifications: Mapped[list["Certification"]] = relationship(
-        secondary="facet_certifications", backref="facets"
     )
     selected_projects: Mapped[list["Project"]] = relationship(
         secondary="facet_projects", back_populates="facets"
