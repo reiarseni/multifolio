@@ -104,6 +104,23 @@ facet_projects = Table(
     ),
 )
 
+facet_certifications = Table(
+    "facet_certifications",
+    Base.metadata,
+    Column(
+        "facet_id",
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "certification_id",
+        UUID(as_uuid=True),
+        ForeignKey("certifications.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+)
+
 
 class BaseProfile(Base):
     __tablename__ = "base_profiles"
@@ -116,7 +133,7 @@ class BaseProfile(Base):
         nullable=False,
     )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    # email se obtiene de user.email — no se almacena duplicado
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -148,6 +165,8 @@ class BaseProfile(Base):
         back_populates="profile", cascade="all, delete-orphan"
     )
 
+    __table_args__ = ()
+
 
 class WorkExperience(Base):
     __tablename__ = "work_experiences"
@@ -173,6 +192,10 @@ class WorkExperience(Base):
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="experiences")
+
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_work_experiences", back_populates="selected_experiences"
+    )
 
 
 class Education(Base):
@@ -200,6 +223,10 @@ class Education(Base):
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="educations")
 
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_educations", back_populates="selected_educations"
+    )
+
 
 class Skill(Base):
     __tablename__ = "skills"
@@ -217,8 +244,15 @@ class Skill(Base):
     is_transversal: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="skills")
+
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_skills", back_populates="selected_skills"
+    )
 
 
 class Certification(Base):
@@ -238,8 +272,15 @@ class Certification(Base):
     credential_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="certifications")
+
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_certifications", back_populates="selected_certifications"
+    )
 
 
 class Project(Base):
@@ -265,6 +306,9 @@ class Project(Base):
     )
 
     profile: Mapped["BaseProfile"] = relationship(back_populates="projects")
+    facets: Mapped[list["Facet"]] = relationship(
+        secondary="facet_projects", back_populates="selected_projects"
+    )
     images: Mapped[list["ProjectImage"]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
@@ -336,19 +380,22 @@ class Facet(Base):
     user: Mapped["User"] = relationship(back_populates="facets")  # noqa: F821
 
     selected_experiences: Mapped[list["WorkExperience"]] = relationship(
-        secondary="facet_work_experiences", backref="facets"
+        secondary="facet_work_experiences", back_populates="facets"
     )
     selected_educations: Mapped[list["Education"]] = relationship(
-        secondary="facet_educations", backref="facets"
+        secondary="facet_educations", back_populates="facets"
     )
     selected_skills: Mapped[list["Skill"]] = relationship(
-        secondary="facet_skills", backref="facets"
+        secondary="facet_skills", back_populates="facets"
     )
     selected_certifications: Mapped[list["Certification"]] = relationship(
         secondary="facet_certifications", backref="facets"
     )
     selected_projects: Mapped[list["Project"]] = relationship(
-        secondary="facet_projects", backref="facets"
+        secondary="facet_projects", back_populates="facets"
+    )
+    selected_certifications: Mapped[list["Certification"]] = relationship(
+        secondary="facet_certifications", back_populates="facets"
     )
 
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)
