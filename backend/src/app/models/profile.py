@@ -388,9 +388,6 @@ class Facet(Base):
     selected_skills: Mapped[list["Skill"]] = relationship(
         secondary="facet_skills", back_populates="facets"
     )
-    selected_certifications: Mapped[list["Certification"]] = relationship(
-        secondary="facet_certifications", backref="facets"
-    )
     selected_projects: Mapped[list["Project"]] = relationship(
         secondary="facet_projects", back_populates="facets"
     )
