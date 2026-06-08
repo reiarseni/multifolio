@@ -1,7 +1,8 @@
 import uuid
 from datetime import date, datetime
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class WorkExperienceBase(BaseModel):
@@ -17,17 +18,6 @@ class WorkExperienceBase(BaseModel):
 
 class WorkExperienceCreate(WorkExperienceBase):
     pass
-
-
-class WorkExperienceUpdate(BaseModel):
-    company: str | None = None
-    position: str | None = None
-    description: str | None = None
-    start_date: date | None = None
-    end_date: date | None = None
-    is_current: bool | None = None
-    location: str | None = None
-    sort_order: int | None = None
 
 
 class WorkExperienceResponse(WorkExperienceBase):
@@ -54,17 +44,6 @@ class EducationCreate(EducationBase):
     pass
 
 
-class EducationUpdate(BaseModel):
-    institution: str | None = None
-    degree: str | None = None
-    field: str | None = None
-    description: str | None = None
-    start_date: date | None = None
-    end_date: date | None = None
-    is_current: bool | None = None
-    sort_order: int | None = None
-
-
 class EducationResponse(EducationBase):
     id: uuid.UUID
     profile_id: uuid.UUID
@@ -86,14 +65,6 @@ class SkillCreate(SkillBase):
     pass
 
 
-class SkillUpdate(BaseModel):
-    name: str | None = None
-    category: str | None = None
-    level: str | None = None
-    is_transversal: bool | None = None
-    sort_order: int | None = None
-
-
 class SkillResponse(SkillBase):
     id: uuid.UUID
     profile_id: uuid.UUID
@@ -113,15 +84,6 @@ class CertificationBase(BaseModel):
 
 class CertificationCreate(CertificationBase):
     pass
-
-
-class CertificationUpdate(BaseModel):
-    name: str | None = None
-    issuer: str | None = None
-    issue_date: date | None = None
-    expiry_date: date | None = None
-    credential_url: str | None = None
-    sort_order: int | None = None
 
 
 class CertificationResponse(CertificationBase):
@@ -165,3 +127,29 @@ class BaseProfileResponse(BaseModel):
     certifications: list[CertificationResponse] = []
 
     model_config = {"from_attributes": True}
+
+    @model_validator(mode="before")
+    @classmethod
+    def _inject_user_email(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            return data
+        return {
+            "id": data.id,
+            "user_id": data.user_id,
+            "full_name": data.full_name,
+            "email": data.user.email,
+            "phone": data.phone,
+            "location": data.location,
+            "title": data.title,
+            "bio": data.bio,
+            "photo_url": data.photo_url,
+            "website": data.website,
+            "linkedin_url": data.linkedin_url,
+            "github_url": data.github_url,
+            "created_at": data.created_at,
+            "updated_at": data.updated_at,
+            "experiences": data.experiences,
+            "educations": data.educations,
+            "skills": data.skills,
+            "certifications": data.certifications,
+        }
