@@ -107,8 +107,7 @@ def upgrade() -> None:
     op.create_table(
         "educations",
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("profile_id", sa.UUID(), nullable=False
-Auto-fusionando backend/test.db),
+        sa.Column("profile_id", sa.UUID(), nullable=False),
         sa.Column("institution", sa.String(length=255), nullable=False),
         sa.Column("degree", sa.String(length=255), nullable=False),
         sa.Column("field", sa.String(length=255), nullable=True),
