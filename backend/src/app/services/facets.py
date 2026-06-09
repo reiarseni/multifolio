@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.profile import Education, Facet, Project, Skill, WorkExperience
+from app.models.profile import Certification, Education, Facet, Project, Skill, WorkExperience
 from app.schemas.facet import FacetCreate, FacetUpdate
 from app.services.utils import get_profile_or_404
 
@@ -36,6 +36,7 @@ async def _load_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID)
             selectinload(Facet.selected_educations),
             selectinload(Facet.selected_skills),
             selectinload(Facet.selected_projects),
+            selectinload(Facet.selected_certifications),
         )
     )
     facet = result.scalar_one_or_none()
@@ -54,6 +55,7 @@ async def list_facets(db: AsyncSession, user_id: uuid.UUID) -> list[Facet]:
             selectinload(Facet.selected_educations),
             selectinload(Facet.selected_skills),
             selectinload(Facet.selected_projects),
+            selectinload(Facet.selected_certifications),
         )
     )
     return list(result.scalars().all())
@@ -78,7 +80,7 @@ async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) 
     db.add(facet)
     await db.flush()
 
-    if data.experience_ids or data.education_ids or data.skill_ids or data.project_ids:
+    if data.experience_ids or data.education_ids or data.skill_ids or data.project_ids or data.certification_ids:
         profile = await get_profile_or_404(db, user_id)
     if data.experience_ids:
         items = await _resolve_selected(db, profile.id, data.experience_ids, WorkExperience)
@@ -92,6 +94,9 @@ async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) 
     if data.project_ids:
         items = await _resolve_selected(db, profile.id, data.project_ids, Project)
         facet.selected_projects = items
+    if data.certification_ids:
+        items = await _resolve_selected(db, profile.id, data.certification_ids, Certification)
+        facet.selected_certifications = items
 
     await db.commit()
     return await _load_facet(db, user_id, facet.id)
@@ -103,13 +108,13 @@ async def update_facet(
     facet = await _load_facet(db, user_id, facet_id)
 
     scalar_fields = data.model_dump(
-        exclude={"experience_ids", "education_ids", "skill_ids", "project_ids"},
+        exclude={"experience_ids", "education_ids", "skill_ids", "project_ids", "certification_ids"},
         exclude_unset=True,
     )
     for field, value in scalar_fields.items():
         setattr(facet, field, value)
 
-    m2m_fields = [data.experience_ids, data.education_ids, data.skill_ids, data.project_ids]
+    m2m_fields = [data.experience_ids, data.education_ids, data.skill_ids, data.project_ids, data.certification_ids]
     if any(x is not None for x in m2m_fields):
         profile = await get_profile_or_404(db, user_id)
     if data.experience_ids is not None:
@@ -124,6 +129,9 @@ async def update_facet(
     if data.project_ids is not None:
         items = await _resolve_selected(db, profile.id, data.project_ids, Project)
         facet.selected_projects = items
+    if data.certification_ids is not None:
+        items = await _resolve_selected(db, profile.id, data.certification_ids, Certification)
+        facet.selected_certifications = items
 
     await db.commit()
     return await _load_facet(db, user_id, facet.id)
