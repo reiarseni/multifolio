@@ -86,11 +86,11 @@ def upgrade() -> None:
                server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id', 'slug', name='uq_facet_slug_per_user')
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),
-    )
+    sa.UniqueConstraint('user_id', 'slug', name='uq_facet_slug_per_user'),
+    sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+    sa.PrimaryKeyConstraint("id"),
+    sa.UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),
+)
     op.create_index(op.f("ix_facets_slug"), "facets", ["slug"], unique=False)
     op.create_index(op.f("ix_facets_user_id"), "facets", ["user_id"], unique=False)
     op.create_table(
