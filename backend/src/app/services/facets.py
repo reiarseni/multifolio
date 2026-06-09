@@ -35,8 +35,8 @@ async def _load_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID)
             selectinload(Facet.selected_experiences),
             selectinload(Facet.selected_educations),
             selectinload(Facet.selected_skills),
-            selectinload(Facet.selected_projects),
             selectinload(Facet.selected_certifications),
+            selectinload(Facet.selected_projects)
         )
     )
     facet = result.scalar_one_or_none()
@@ -97,6 +97,9 @@ async def create_facet(db: AsyncSession, user_id: uuid.UUID, data: FacetCreate) 
     if data.skill_ids:
         items = await _resolve_selected(db, profile.id, data.skill_ids, Skill)
         facet.selected_skills = items
+    if data.certification_ids:
+        items = await _resolve_selected(db, profile.id, data.certification_ids, Certification)
+        facet.selected_certifications = items
     if data.project_ids:
         items = await _resolve_selected(db, profile.id, data.project_ids, Project)
         facet.selected_projects = items

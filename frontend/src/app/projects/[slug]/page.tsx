@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type { Project } from "@/lib/api/projects";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -82,9 +83,7 @@ export default function PublicProjectPage() {
 
       {project.markdown_content && (
         <div className="prose prose-sm max-w-none">
-          {project.markdown_content.split("\n").map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
+          <ReactMarkdown>{project.markdown_content}</ReactMarkdown>
         </div>
       )}
 

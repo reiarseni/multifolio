@@ -14,6 +14,7 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
             selectinload(Facet.selected_experiences),
             selectinload(Facet.selected_educations),
             selectinload(Facet.selected_skills),
+            selectinload(Facet.selected_certifications),
             selectinload(Facet.selected_projects).selectinload(Project.images),
         )
     )
@@ -43,6 +44,6 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
         "experiences": facet.selected_experiences or [],
         "educations": facet.selected_educations or [],
         "skills": facet.selected_skills or [],
-        "certifications": [],
+        "certifications": facet.selected_certifications or [],
         "projects": facet.selected_projects or [],
     }
