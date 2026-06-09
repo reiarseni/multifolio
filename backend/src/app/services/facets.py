@@ -35,6 +35,8 @@ async def _load_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID)
             selectinload(Facet.selected_experiences),
             selectinload(Facet.selected_educations),
             selectinload(Facet.selected_skills),
+            selectinload(Facet.selected_certifications),
+            selectinload(Facet.selected_projects),
             selectinload(Facet.selected_projects),
             selectinload(Facet.selected_certifications),
         )
