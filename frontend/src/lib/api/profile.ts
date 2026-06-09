@@ -10,7 +10,6 @@ export interface WorkExperience {
   start_date: string;
   end_date: string | null;
   is_current: boolean;
-  location: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
