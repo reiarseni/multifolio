@@ -28,6 +28,8 @@ async def _ensure_profile(
 
 async def _get_user_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUID) -> Project:
     profile = await _get_profile(db, user_id)
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     result = await db.execute(
         select(Project)
         .where(Project.id == project_id, Project.profile_id == profile.id)
@@ -41,6 +43,8 @@ async def _get_user_project(db: AsyncSession, user_id: uuid.UUID, project_id: uu
 
 async def list_projects(db: AsyncSession, user_id: uuid.UUID) -> list[Project]:
     profile = await _get_profile(db, user_id)
+    if profile is None:
+        return []
     result = await db.execute(
         select(Project)
         .where(Project.profile_id == profile.id)
@@ -57,7 +61,7 @@ async def get_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUI
 async def create_project(
     db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate, user_email: str = ""
 ) -> Project:
-    profile = await _get_profile(db, user_id)
+    profile = await _ensure_profile(db, user_id, user_email)
     project = Project(profile_id=profile.id, **data.model_dump())
     db.add(project)
     await db.commit()

@@ -8,7 +8,7 @@ from app.services.public import get_published_facet
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates" / "pdf"
 
-env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=True)
+env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
 
 
 async def generate_facet_pdf(db, slug: str) -> bytes:

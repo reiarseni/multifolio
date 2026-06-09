@@ -21,8 +21,14 @@ export default function EditProjectPage() {
 
   const handleSave = async (data: Partial<Project>) => {
     setSaving(true);
-    await projectsApi.update(id, data);
-    router.push("/projects");
+    try {
+      await projectsApi.update(id, data);
+      router.push("/projects");
+    } catch {
+      console.error("Failed to save project");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
