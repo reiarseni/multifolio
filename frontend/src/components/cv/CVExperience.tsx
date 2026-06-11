@@ -5,21 +5,36 @@ export function CVExperience({ items }: { items: PublicExperience[] }) {
 
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-semibold border-b pb-1 mb-3">Experiencia</h2>
+      <h2
+        className="text-lg font-semibold border-b pb-1 mb-3"
+        style={{
+          color: "var(--color-text-heading, inherit)",
+          borderColor: "var(--color-border, currentColor)",
+          fontFamily: "var(--font-heading, inherit)",
+        }}
+      >
+        Experiencia
+      </h2>
       <div className="space-y-4">
         {items.map((exp) => (
           <div key={exp.id}>
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-medium">{exp.position}</p>
-                <p className="text-sm text-muted-foreground">{exp.company}</p>
+                <p className="font-medium" style={{ color: "var(--color-text-heading, inherit)" }}>
+                  {exp.position}
+                </p>
+                <p className="text-sm" style={{ color: "var(--color-text-muted, inherit)" }}>
+                  {exp.company}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground shrink-0 ml-4">
+              <p className="text-xs shrink-0 ml-4" style={{ color: "var(--color-text-muted, inherit)" }}>
                 {exp.start_date} - {exp.is_current ? "Presente" : exp.end_date}
               </p>
             </div>
             {exp.description && (
-              <p className="text-sm mt-1">{exp.description}</p>
+              <p className="text-sm mt-1" style={{ color: "var(--color-text-body, inherit)", fontFamily: "var(--font-body, inherit)" }}>
+                {exp.description}
+              </p>
             )}
           </div>
         ))}
