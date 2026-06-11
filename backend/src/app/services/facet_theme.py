@@ -47,7 +47,10 @@ async def update_facet_theme_config(
         if data.web_layout not in VALID_WEB_LAYOUTS:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"web_layout inválido. Valores aceptados: {', '.join(sorted(VALID_WEB_LAYOUTS))}",
+                detail=(
+                    "web_layout inválido. Valores aceptados: "
+                    + ", ".join(sorted(VALID_WEB_LAYOUTS))
+                ),
             )
         config.web_layout = data.web_layout
 
@@ -55,7 +58,10 @@ async def update_facet_theme_config(
         if data.pdf_layout not in VALID_PDF_LAYOUTS:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"pdf_layout inválido. Valores aceptados: {', '.join(sorted(VALID_PDF_LAYOUTS))}",
+                detail=(
+                    "pdf_layout inválido. Valores aceptados: "
+                    + ", ".join(sorted(VALID_PDF_LAYOUTS))
+                ),
             )
         config.pdf_layout = data.pdf_layout
 
@@ -69,7 +75,10 @@ async def update_facet_theme_config(
         if data.photo_shape not in VALID_PHOTO_SHAPES:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"photo_shape inválido. Valores aceptados: {', '.join(sorted(VALID_PHOTO_SHAPES))}",
+                detail=(
+                    "photo_shape inválido. Valores aceptados: "
+                    + ", ".join(sorted(VALID_PHOTO_SHAPES))
+                ),
             )
         config.photo_shape = data.photo_shape
 

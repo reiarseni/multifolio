@@ -112,7 +112,10 @@ def upgrade() -> None:
         sa.Column("facet_id", sa.UUID(), nullable=False),
         sa.Column("theme_id", sa.UUID(), nullable=False),
         sa.Column("theme_overrides", sa.dialects.postgresql.JSONB(), nullable=True),
-        sa.Column("web_layout", sa.String(length=50), nullable=False, server_default="single-column"),
+        sa.Column(
+            "web_layout", sa.String(length=50),
+            nullable=False, server_default="single-column",
+        ),
         sa.Column("pdf_layout", sa.String(length=50), nullable=False, server_default="classic"),
         sa.Column("show_photo_web", sa.Boolean(), nullable=False, server_default=sa.text("true")),
         sa.Column("show_photo_pdf", sa.Boolean(), nullable=False, server_default=sa.text("true")),
@@ -146,7 +149,8 @@ def upgrade() -> None:
     op.execute(
         sa.text(
             "INSERT INTO facet_theme_configs "
-            "(facet_id, theme_id, web_layout, pdf_layout, show_photo_web, show_photo_pdf, photo_shape) "
+            "(facet_id, theme_id, web_layout, pdf_layout, "
+            "show_photo_web, show_photo_pdf, photo_shape) "
             "SELECT id, CAST(:theme_id AS uuid), 'single-column', 'classic', true, true, 'circle' "
             "FROM facets "
             "WHERE NOT EXISTS ("

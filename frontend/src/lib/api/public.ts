@@ -72,9 +72,18 @@ export interface PublicFacetResponse {
   skills: PublicSkill[];
   certifications: PublicCertification[];
   projects: PublicProject[];
+  web_layout: string;
+  pdf_layout: string;
+  show_photo_web: boolean;
+  show_photo_pdf: boolean;
+  photo_shape: string;
+  theme_tokens: Record<string, unknown>;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const BASE_URL =
+  process.env.INTERNAL_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8000";
 
 export const publicApi = {
   getFacet: (slug: string) =>

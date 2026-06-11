@@ -8,8 +8,8 @@ from app.db.session import get_db_session
 from app.models.user import User
 from app.schemas.facet import FacetCreate, FacetResponse, FacetUpdate
 from app.schemas.theme import FacetThemeConfigResponse, FacetThemeConfigUpdate
-from app.services import facets as facets_service
 from app.services import facet_theme as facet_theme_service
+from app.services import facets as facets_service
 
 router = APIRouter(prefix="/facets", tags=["facets"])
 
