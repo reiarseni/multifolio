@@ -7,7 +7,9 @@ from app.core.deps import get_current_user
 from app.db.session import get_db_session
 from app.models.user import User
 from app.schemas.facet import FacetCreate, FacetResponse, FacetUpdate
+from app.schemas.theme import FacetThemeConfigResponse, FacetThemeConfigUpdate
 from app.services import facets as facets_service
+from app.services import facet_theme as facet_theme_service
 
 router = APIRouter(prefix="/facets", tags=["facets"])
 
@@ -55,3 +57,13 @@ async def delete_facet(
     current_user: User = Depends(get_current_user),
 ):
     await facets_service.delete_facet(db, current_user.id, facet_id)
+
+
+@router.put("/{facet_id}/theme", response_model=FacetThemeConfigResponse)
+async def update_facet_theme(
+    facet_id: uuid.UUID,
+    body: FacetThemeConfigUpdate,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    return await facet_theme_service.update_facet_theme_config(db, current_user.id, facet_id, body)

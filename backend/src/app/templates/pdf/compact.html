@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  {{ theme_css }}
+  @page { size: A4; margin: 1.2cm 1.5cm; }
+  body {
+    font-family: var(--font-body, 'Helvetica Neue', sans-serif);
+    font-size: 9pt;
+    line-height: 1.3;
+    color: var(--color-text-body, #1a1a1a);
+    background: var(--color-background, #ffffff);
+  }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+  h1 { font-family: var(--font-heading, inherit); font-size: 16pt; margin: 0; color: var(--color-text-heading, #1a1a1a); }
+  .title { font-size: 9pt; color: var(--color-text-muted, #555); }
+  .contact { font-size: 8pt; color: var(--color-text-muted, #666); display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 8px; }
+  .bio { font-size: 8.5pt; color: var(--color-text-body, #444); margin-bottom: 6px; }
+  h2 {
+    font-family: var(--font-heading, inherit);
+    font-size: 9pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--color-primary, #3b82f6);
+    padding-bottom: 2px;
+    margin: 8px 0 4px;
+    color: var(--color-primary, #1a1a1a);
+  }
+  .item { margin-bottom: 4px; display: flex; gap: 6px; }
+  .item-left { flex: 1; }
+  .item-title { font-weight: 600; font-size: 9pt; }
+  .item-sub { font-size: 8pt; color: var(--color-text-muted, #666); }
+  .item-date { font-size: 8pt; color: var(--color-text-muted, #888); white-space: nowrap; text-align: right; min-width: 80px; }
+  .item-desc { font-size: 8pt; color: var(--color-text-body, #444); margin-top: 1px; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .skill-chip { font-size: 8pt; background: var(--color-surface, #f0f0f0); border-radius: var(--radius-md, 2px); padding: 1px 5px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    {% if show_photo_pdf and photo_url %}<img class="photo" src="{{ photo_url }}" alt="{{ full_name }}">{% endif %}
+    <div>
+      <h1>{{ full_name }}</h1>
+      {% if title %}<div class="title">{{ title }}</div>{% endif %}
+    </div>
+  </div>
+  <div class="contact">
+    {% if email %}<span>{{ email }}</span>{% endif %}
+    {% if phone %}<span>{{ phone }}</span>{% endif %}
+    {% if website %}<span>{{ website }}</span>{% endif %}
+    {% if linkedin_url %}<span>{{ linkedin_url }}</span>{% endif %}
+  </div>
+  {% if bio %}<div class="bio">{{ bio }}</div>{% endif %}
+
+  {% if experiences %}
+  <h2>Experiencia</h2>
+  {% for exp in experiences %}
+  <div class="item">
+    <div class="item-left">
+      <span class="item-title">{{ exp.position }}</span>, <span class="item-sub">{{ exp.company }}</span>
+      {% if exp.description %}<div class="item-desc">{{ exp.description }}</div>{% endif %}
+    </div>
+    <div class="item-date">{{ exp.start_date }} – {% if exp.is_current %}Presente{% else %}{{ exp.end_date }}{% endif %}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if educations %}
+  <h2>Educación</h2>
+  {% for edu in educations %}
+  <div class="item">
+    <div class="item-left">
+      <span class="item-title">{{ edu.degree }}</span>, <span class="item-sub">{{ edu.institution }}</span>
+    </div>
+    <div class="item-date">{{ edu.start_date }} – {% if edu.is_current %}Presente{% else %}{{ edu.end_date }}{% endif %}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if skills %}
+  <h2>Habilidades</h2>
+  <div class="skills-list">
+    {% for skill in skills %}
+    <span class="skill-chip">{{ skill.name }}{% if skill.level %} · {{ skill.level }}{% endif %}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if certifications %}
+  <h2>Certificaciones</h2>
+  {% for cert in certifications %}
+  <div class="item">
+    <div class="item-left">
+      <span class="item-title">{{ cert.name }}</span>, <span class="item-sub">{{ cert.issuer }}</span>
+    </div>
+    {% if cert.issue_date %}<div class="item-date">{{ cert.issue_date }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</body>
+</html>
