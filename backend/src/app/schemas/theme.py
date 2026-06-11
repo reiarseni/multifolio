@@ -1,0 +1,38 @@
+import uuid
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class ThemeResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    tokens: dict
+    is_public: bool
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class FacetThemeConfigResponse(BaseModel):
+    theme_id: uuid.UUID
+    theme: ThemeResponse
+    theme_overrides: dict | None
+    web_layout: str
+    pdf_layout: str
+    show_photo_web: bool
+    show_photo_pdf: bool
+    photo_shape: str
+
+    model_config = {"from_attributes": True}
+
+
+class FacetThemeConfigUpdate(BaseModel):
+    theme_id: uuid.UUID | None = None
+    theme_overrides: dict | None = None
+    web_layout: str | None = None
+    pdf_layout: str | None = None
+    show_photo_web: bool | None = None
+    show_photo_pdf: bool | None = None
+    photo_shape: str | None = None

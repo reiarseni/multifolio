@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from app.schemas.theme import FacetThemeConfigResponse
+
 
 class FacetBase(BaseModel):
     name: str
@@ -66,6 +68,7 @@ class FacetResponse(BaseModel):
     skill_ids: list[uuid.UUID] = []
     project_ids: list[uuid.UUID] = []
     certification_ids: list[uuid.UUID] = []
+    theme_config: FacetThemeConfigResponse | None = None
 
     model_config = {"from_attributes": True}
 
@@ -92,4 +95,5 @@ class FacetResponse(BaseModel):
             "skill_ids": [s.id for s in data.selected_skills],
             "project_ids": [p.id for p in data.selected_projects],
             "certification_ids": [c.id for c in data.selected_certifications],
+            "theme_config": data.theme_config,
         }
