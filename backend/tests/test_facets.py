@@ -117,10 +117,9 @@ async def test_delete_facet(client: AsyncClient, auth_tokens, created_facet):
 
 # ── GET /api/themes ───────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
-async def test_list_themes_includes_predefined(
-    client: AsyncClient, auth_tokens, seeded_themes
-):
+async def test_list_themes_includes_predefined(client: AsyncClient, auth_tokens, seeded_themes):
     token, _ = auth_tokens
     resp = await client.get("/api/themes", headers=_headers(token))
     assert resp.status_code == 200
@@ -136,13 +135,12 @@ async def test_list_themes_requires_auth(client: AsyncClient, seeded_themes):
 
 # ── PUT /api/facets/{id}/theme ────────────────────────────────────────────────
 
+
 @pytest_asyncio.fixture
 async def facet_with_theme(client: AsyncClient, auth_tokens, seeded_themes):
     token, _ = auth_tokens
     h = _headers(token)
-    resp = await client.post(
-        "/api/facets", json={"name": "TFacet", "slug": "tfacet"}, headers=h
-    )
+    resp = await client.post("/api/facets", json={"name": "TFacet", "slug": "tfacet"}, headers=h)
     assert resp.status_code == 201
     return resp.json(), h, seeded_themes
 
@@ -175,6 +173,7 @@ async def test_update_facet_theme_invalid_layout(client: AsyncClient, facet_with
 
 
 # ── Transversal skills pre-selection ─────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_transversal_skills_pre_included(client: AsyncClient, auth_tokens):

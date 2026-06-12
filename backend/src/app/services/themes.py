@@ -8,9 +8,7 @@ from app.models.profile import Theme
 
 
 async def list_themes(db: AsyncSession) -> list[Theme]:
-    result = await db.execute(
-        select(Theme).where(Theme.is_public.is_(True)).order_by(Theme.name)
-    )
+    result = await db.execute(select(Theme).where(Theme.is_public.is_(True)).order_by(Theme.name))
     return list(result.scalars().all())
 
 
