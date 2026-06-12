@@ -58,4 +58,18 @@ export const projectsApi = {
 
   delete: (id: string) =>
     apiClient.delete(`/api/projects/${id}`, withAuth()),
+
+  addImage: (id: string, data: { image_url: string; caption?: string; sort_order?: number }) =>
+    apiClient.post<ProjectImage>(`/api/projects/${id}/images`, data, withAuth()),
+
+  deleteImage: (id: string, imageId: string) =>
+    apiClient.delete(`/api/projects/${id}/images/${imageId}`, withAuth()),
+
+  addAttachment: (
+    id: string,
+    data: { file_url: string; filename: string; mime_type: string; file_size: number }
+  ) => apiClient.post<ProjectAttachment>(`/api/projects/${id}/attachments`, data, withAuth()),
+
+  deleteAttachment: (id: string, attachmentId: string) =>
+    apiClient.delete(`/api/projects/${id}/attachments/${attachmentId}`, withAuth()),
 };
