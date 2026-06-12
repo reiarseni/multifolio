@@ -27,6 +27,19 @@ class ProjectAttachmentResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ProjectImageCreate(BaseModel):
+    image_url: str
+    caption: str | None = None
+    sort_order: int = 0
+
+
+class ProjectAttachmentCreate(BaseModel):
+    file_url: str
+    filename: str
+    mime_type: str
+    file_size: int
+
+
 class ProjectBase(BaseModel):
     title: str
     description: str | None = None
