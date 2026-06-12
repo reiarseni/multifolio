@@ -1,52 +1,42 @@
-"use client";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { publicApi } from "@/lib/api/public";
+import { ThemeProvider } from "@/components/cv/ThemeProvider";
+import { layoutRegistry } from "@/components/cv/layouts";
+import { SingleColumnLayout } from "@/components/cv/layouts/SingleColumnLayout";
 
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { publicApi, type PublicFacetResponse } from "@/lib/api/public";
-import { CVHeader } from "@/components/cv/CVHeader";
-import { CVExperience } from "@/components/cv/CVExperience";
-import { CVEducation } from "@/components/cv/CVEducation";
-import { CVSkills } from "@/components/cv/CVSkills";
-import { CVProjects } from "@/components/cv/CVProjects";
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-export default function PublicFacetPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const [data, setData] = useState<PublicFacetResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const data = await publicApi.getFacet(slug);
+    return {
+      title: data.meta_title || `${data.full_name}${data.title ? ` - ${data.title}` : ""}`,
+      description: data.meta_description || data.bio || undefined,
+    };
+  } catch {
+    return { title: "Página no encontrada" };
+  }
+}
 
-  useEffect(() => {
-    publicApi.getFacet(slug).then(setData).catch(() => setError(true)).finally(() => setLoading(false));
-  }, [slug]);
+export default async function PublicFacetPage({ params }: Props) {
+  const { slug } = await params;
 
-  useEffect(() => {
-    if (!data) return;
-    document.title = data.meta_title || `${data.full_name} - ${data.title || data.slug}`;
-    const meta = document.querySelector("meta[name=description]") || document.createElement("meta");
-    meta.setAttribute("name", "description");
-    meta.setAttribute("content", data.meta_description || data.bio || "");
-    if (!meta.parentNode) document.head.appendChild(meta);
-  }, [data]);
-
-  if (loading) {
-    return <div className="max-w-3xl mx-auto p-6 text-muted-foreground">Loading...</div>;
+  let data;
+  try {
+    data = await publicApi.getFacet(slug);
+  } catch {
+    notFound();
   }
 
-  if (error || !data) {
-    return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-bold">Faceta no encontrada</h1>
-      </div>
-    );
-  }
+  const Layout = layoutRegistry[data.web_layout] ?? SingleColumnLayout;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <CVHeader data={data} />
-      <CVExperience items={data.experiences} />
-      <CVEducation items={data.educations} />
-      <CVSkills items={data.skills} />
-      <CVProjects items={data.projects} />
-    </div>
+    <ThemeProvider tokens={data.theme_tokens ?? {}}>
+      <Layout data={data} />
+    </ThemeProvider>
   );
 }

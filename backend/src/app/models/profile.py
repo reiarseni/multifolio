@@ -2,6 +2,7 @@ import uuid
 from datetime import date, datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     Date,
@@ -378,4 +379,46 @@ class Facet(Base):
         secondary="facet_certifications", back_populates="facets"
     )
 
+    theme_config: Mapped["FacetThemeConfig"] = relationship(
+        back_populates="facet", uselist=False, cascade="all, delete-orphan"
+    )
+
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)
+
+
+class Theme(Base):
+    __tablename__ = "themes"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    tokens: Mapped[dict] = mapped_column(JSON, nullable=False)
+    is_public: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class FacetThemeConfig(Base):
+    __tablename__ = "facet_theme_configs"
+
+    facet_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("facets.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    theme_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("themes.id"), nullable=False
+    )
+    theme_overrides: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    web_layout: Mapped[str] = mapped_column(String(50), default="single-column", nullable=False)
+    pdf_layout: Mapped[str] = mapped_column(String(50), default="classic", nullable=False)
+    show_photo_web: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    show_photo_pdf: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    photo_shape: Mapped[str] = mapped_column(String(50), default="circle", nullable=False)
+
+    facet: Mapped["Facet"] = relationship(back_populates="theme_config")
+    theme: Mapped["Theme"] = relationship()
