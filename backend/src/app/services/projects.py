@@ -117,7 +117,10 @@ async def delete_image(
 ) -> None:
     await _get_user_project(db, user_id, project_id)
     result = await db.execute(
-        select(ProjectImage).where(ProjectImage.id == image_id, ProjectImage.project_id == project_id)
+        select(ProjectImage).where(
+            ProjectImage.id == image_id,
+            ProjectImage.project_id == project_id,
+        )
     )
     image = result.scalar_one_or_none()
     if not image:
