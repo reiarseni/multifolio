@@ -9,10 +9,17 @@ class Settings(BaseSettings):
     database_url: str
     redis_url: str
     secret_key: str
+    environment: str = "development"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
     allowed_origins: str = "http://localhost:3000"
+    max_upload_size_mb: int = 10
+    media_dir: str = "/app/media"
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == "production"
 
     @property
     def allowed_origins_list(self) -> list[str]:
