@@ -113,8 +113,10 @@ def upgrade() -> None:
         sa.Column("theme_id", sa.UUID(), nullable=False),
         sa.Column("theme_overrides", sa.dialects.postgresql.JSONB(), nullable=True),
         sa.Column(
-            "web_layout", sa.String(length=50),
-            nullable=False, server_default="single-column",
+            "web_layout",
+            sa.String(length=50),
+            nullable=False,
+            server_default="single-column",
         ),
         sa.Column("pdf_layout", sa.String(length=50), nullable=False, server_default="classic"),
         sa.Column("show_photo_web", sa.Boolean(), nullable=False, server_default=sa.text("true")),

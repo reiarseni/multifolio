@@ -9,7 +9,15 @@ from app.core.deps import get_current_user
 from app.db.session import get_db_session
 from app.models.profile import Facet, Project, facet_projects
 from app.models.user import User
-from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
+from app.schemas.project import (
+    ProjectAttachmentCreate,
+    ProjectAttachmentResponse,
+    ProjectCreate,
+    ProjectImageCreate,
+    ProjectImageResponse,
+    ProjectResponse,
+    ProjectUpdate,
+)
 from app.services import projects as projects_service
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -56,7 +64,7 @@ async def create_project(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ):
-    return await projects_service.create_project(db, current_user.id, body, current_user.email)
+    return await projects_service.create_project(db, current_user.id, body)
 
 
 @router.put("/{project_id}", response_model=ProjectResponse)
@@ -77,3 +85,43 @@ async def delete_project(
 ):
     await projects_service.delete_project(db, current_user.id, project_id)
     return {"message": "Project deleted"}
+
+
+@router.post("/{project_id}/images", response_model=ProjectImageResponse, status_code=201)
+async def add_project_image(
+    project_id: uuid.UUID,
+    body: ProjectImageCreate,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    return await projects_service.add_image(db, current_user.id, project_id, body)
+
+
+@router.delete("/{project_id}/images/{image_id}", status_code=204)
+async def delete_project_image(
+    project_id: uuid.UUID,
+    image_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    await projects_service.delete_image(db, current_user.id, project_id, image_id)
+
+
+@router.post("/{project_id}/attachments", response_model=ProjectAttachmentResponse, status_code=201)
+async def add_project_attachment(
+    project_id: uuid.UUID,
+    body: ProjectAttachmentCreate,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    return await projects_service.add_attachment(db, current_user.id, project_id, body)
+
+
+@router.delete("/{project_id}/attachments/{attachment_id}", status_code=204)
+async def delete_project_attachment(
+    project_id: uuid.UUID,
+    attachment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    await projects_service.delete_attachment(db, current_user.id, project_id, attachment_id)

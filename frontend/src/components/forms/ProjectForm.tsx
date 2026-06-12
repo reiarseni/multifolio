@@ -1,7 +1,10 @@
 "use client";
 
 import { type Project } from "@/lib/api/projects";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { uploadFile } from "@/lib/api/upload";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 interface Props {
   initial?: Partial<Project>;
@@ -19,6 +22,20 @@ export function ProjectForm({ initial, onSave, saving }: Props) {
     cover_image_url: initial?.cover_image_url ?? "",
     sort_order: initial?.sort_order ?? 0,
   });
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverUploading(true);
+    try {
+      const url = await uploadFile(file);
+      setForm((prev) => ({ ...prev, cover_image_url: url }));
+    } finally {
+      setCoverUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,13 +75,35 @@ export function ProjectForm({ initial, onSave, saving }: Props) {
         />
       </div>
 
-      <div>
-        <label className="text-sm text-muted-foreground">URL de imagen de portada</label>
-        <input
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={form.cover_image_url}
-          onChange={(e) => set("cover_image_url", e.target.value)}
-        />
+      <div className="space-y-2">
+        <label className="text-sm text-muted-foreground">Imagen de portada</label>
+        {form.cover_image_url && (
+          <img
+            src={form.cover_image_url.startsWith("/media") ? `${BASE_URL}${form.cover_image_url}` : form.cover_image_url}
+            alt="Portada"
+            className="h-24 w-auto rounded-md border object-cover"
+          />
+        )}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={coverUploading}
+            className="text-sm border rounded-md px-3 py-1.5 hover:bg-muted disabled:opacity-50"
+          >
+            {coverUploading ? "Subiendo..." : form.cover_image_url ? "Cambiar imagen" : "Subir imagen"}
+          </button>
+          {form.cover_image_url && (
+            <button
+              type="button"
+              onClick={() => setForm((prev) => ({ ...prev, cover_image_url: "" }))}
+              className="text-sm text-destructive hover:underline"
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+        <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
