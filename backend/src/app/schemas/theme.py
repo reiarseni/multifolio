@@ -36,3 +36,15 @@ class FacetThemeConfigUpdate(BaseModel):
     show_photo_web: bool | None = None
     show_photo_pdf: bool | None = None
     photo_shape: str | None = None
+
+
+class ThemeCreate(BaseModel):
+    name: str
+    tokens: dict
+    is_public: bool = False
+
+    model_config = {"from_attributes": True}
+
+
+class ThemeDelete(BaseModel):
+    id: uuid.UUID
