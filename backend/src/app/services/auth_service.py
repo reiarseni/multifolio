@@ -1,11 +1,10 @@
 from datetime import timedelta
 
+import jwt
 import redis.asyncio as aioredis
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-import jwt
 
 from app.core.config import get_settings
 from app.core.security import (
@@ -65,9 +64,15 @@ async def refresh_tokens(redis: aioredis.Redis, refresh_token: str) -> tuple[str
     try:
         payload = decode_token(refresh_token)
         if payload.get("type") != "refresh":
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token",
+            )
     except jwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+        )
 
     user_id = await redis.get(_redis_key(refresh_token))
     if not user_id:

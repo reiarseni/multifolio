@@ -42,7 +42,6 @@ async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BasePr
 
 
 async def _load_full_profile(db: AsyncSession, profile_id: uuid.UUID) -> BaseProfile:
-    from app.models.user import User as UserModel  # avoid circular at module level
     result = await db.execute(
         select(BaseProfile)
         .where(BaseProfile.id == profile_id)

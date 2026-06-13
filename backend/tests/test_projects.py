@@ -109,8 +109,12 @@ async def test_delete_project(client: AsyncClient, created_project):
 async def test_project_isolation(client: AsyncClient, created_project):
     project, _ = created_project
     # second user registers and logs in
-    await client.post("/auth/register", json={"email": "other@example.com", "password": "OtherPass1!"})
-    login = await client.post("/auth/login", json={"email": "other@example.com", "password": "OtherPass1!"})
+    await client.post(
+        "/auth/register", json={"email": "other@example.com", "password": "OtherPass1!"}
+    )
+    login = await client.post(
+        "/auth/login", json={"email": "other@example.com", "password": "OtherPass1!"}
+    )
     other_token = login.json()["access_token"]
     other_h = _headers(other_token)
 

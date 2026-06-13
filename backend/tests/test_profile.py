@@ -1,7 +1,6 @@
 import pytest
 from httpx import AsyncClient
 
-
 # ── helpers ─────────────────────────────────────────────────────────────────
 
 def _headers(access_token: str) -> dict:
