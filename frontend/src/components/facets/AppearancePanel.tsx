@@ -5,6 +5,7 @@ import { themesApi, type Theme, type FacetThemeConfigUpdate } from "@/lib/api/th
 import type { FacetThemeConfig } from "@/lib/api/themes";
 import { VisualEditor } from "./VisualEditor";
 import { CommunityLibrary } from "./CommunityLibrary";
+import { SectionOrderer } from "./SectionOrderer";
 
 interface Props {
   facetId: string;
@@ -40,6 +41,11 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
     show_photo_pdf: initial?.show_photo_pdf ?? true,
     photo_shape: initial?.photo_shape ?? "circle",
   });
+  const [sectionOrder, setSectionOrder] = useState<string[]>(
+    initial?.section_order ?? [
+      "experiencias", "habilidades", "estudios", "proyectos", "certificaciones",
+    ]
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showVisualEditor, setShowVisualEditor] = useState(false);
@@ -52,7 +58,10 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
 
   const handleSave = async () => {
     setSaving(true);
-    await themesApi.updateFacetTheme(facetId, form);
+    await themesApi.updateFacetTheme(facetId, {
+      ...form,
+      section_order: sectionOrder,
+    });
     setSaved(true);
     setSaving(false);
     onSaved?.();
@@ -216,7 +225,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
                   onChange={(e) => setForm((f) => ({ ...f, show_photo_web: e.target.checked }))}
                   className="rounded"
                 />
-                Mostrar foto en la web pública
+                Mostrar foto en la web publica
               </label>
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input
@@ -229,6 +238,17 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
               </label>
             </div>
           </div>
+
+          <SectionOrderer
+            value={sectionOrder}
+            onChange={setSectionOrder}
+            disabled={form.pdf_layout === "two-column"}
+          />
+          {form.pdf_layout === "two-column" && (
+            <p className="text-xs text-muted-foreground">
+              El layout de dos columnas usa un mapeo fijo de columnas. El orden de secciones no aplica al PDF.
+            </p>
+          )}
 
           <button
             onClick={handleSave}
