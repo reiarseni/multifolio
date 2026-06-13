@@ -2,21 +2,20 @@
 
 import { useState } from "react";
 import type { Facet } from "@/lib/api/facets";
+import { facetsApi } from "@/lib/api/facets";
 import { ShareButton } from "@/components/dashboard/ShareButton";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-
 export function FacetCard({ facet }: { facet: Facet }) {
-  const publicUrl = `${API_URL}/${facet.slug}`;
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/${facet.slug}` : `/${facet.slug}`;
   const [published, setPublished] = useState(facet.is_published);
 
   const togglePublish = async () => {
-    const res = await fetch(`/api/facets/${facet.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ is_published: !published }),
-    });
-    if (res.ok) setPublished(!published);
+    try {
+      await facetsApi.update(facet.id, { is_published: !published });
+      setPublished(!published);
+    } catch {
+      // silently ignore — state remains unchanged
+    }
   };
 
   return (
