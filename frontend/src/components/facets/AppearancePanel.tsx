@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { themesApi, type Theme, type FacetThemeConfigUpdate } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
+import { VisualEditor } from "./VisualEditor";
 
 interface Props {
   facetId: string;
@@ -40,6 +41,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showVisualEditor, setShowVisualEditor] = useState(false);
 
   useEffect(() => {
     themesApi.list().then(setThemes);
@@ -56,7 +58,16 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Apariencia</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Apariencia</h2>
+        <button onClick={() => setShowVisualEditor(!showVisualEditor)} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+          {showVisualEditor ? "Volver al panel básico" : "Editor visual avanzado"}
+        </button>
+      </div>
+
+      {showVisualEditor ? (
+        <VisualEditor facetId={facetId} initial={initial} onSaved={onSaved} />
+      ) : (
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Tema</label>
@@ -165,6 +176,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
       >
         {saving ? "Guardando..." : saved ? "Guardado" : "Guardar apariencia"}
       </button>
+      )}
     </div>
   );
 }
