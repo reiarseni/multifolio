@@ -74,9 +74,9 @@ async def publish_theme(db: AsyncSession, user_id: uuid.UUID, theme_id: uuid.UUI
             detail="No se pueden publicar los temas predefinidos del sistema",
         )
 
-    wcag_errors = validate_wcag(theme.tokens)
     asset_errors = validate_external_assets(theme.tokens)
-    all_errors = wcag_errors + asset_errors
+    wcag_errors = validate_wcag(theme.tokens) if not asset_errors else []
+    all_errors = asset_errors + wcag_errors
 
     if all_errors:
         raise HTTPException(
