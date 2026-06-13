@@ -9,13 +9,14 @@ interface Props {
   selectedEducationIds: string[];
   selectedSkillIds: string[];
   selectedProjectIds: string[];
+  selectedCertificationIds: string[];
   onChange: (field: string, ids: string[]) => void;
 }
 
 type Section = {
   key: string;
   label: string;
-  items: { id: string; label: string }[];
+  items: { id: string; label: string; badge?: string }[];
   field: string;
 };
 
@@ -24,6 +25,7 @@ export function FacetItemSelector({
   selectedEducationIds,
   selectedSkillIds,
   selectedProjectIds,
+  selectedCertificationIds,
   onChange,
 }: Props) {
   const [profile, setProfile] = useState<BaseProfile | null>(null);
@@ -43,6 +45,7 @@ export function FacetItemSelector({
     education_ids: selectedEducationIds,
     skill_ids: selectedSkillIds,
     project_ids: selectedProjectIds,
+    certification_ids: selectedCertificationIds,
   };
 
   const sections: Section[] = [
@@ -70,7 +73,8 @@ export function FacetItemSelector({
       field: "skill_ids",
       items: (profile?.skills ?? []).map((s) => ({
         id: s.id,
-        label: `${s.name}${s.is_transversal ? " (Transversal)" : " (Contextual)"}`,
+        label: s.name,
+        badge: s.is_transversal ? "transversal" : undefined,
       })),
     },
     {
@@ -80,6 +84,15 @@ export function FacetItemSelector({
       items: projects.map((p) => ({
         id: p.id,
         label: p.title,
+      })),
+    },
+    {
+      key: "certifications",
+      label: "Certificaciones",
+      field: "certification_ids",
+      items: (profile?.certifications ?? []).map((c) => ({
+        id: c.id,
+        label: `${c.name} — ${c.issuer}`,
       })),
     },
   ];
@@ -121,7 +134,12 @@ export function FacetItemSelector({
                     onChange={() => toggle(section.field, item.id)}
                     className="rounded"
                   />
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.badge === "transversal" && (
+                    <span className="ml-auto text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5">
+                      Transversal
+                    </span>
+                  )}
                 </label>
               ))}
             </div>

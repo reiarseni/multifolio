@@ -4,10 +4,11 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FacetForm } from "@/components/forms/FacetForm";
 import { FacetItemSelector } from "@/components/forms/FacetItemSelector";
+import { AppearancePanel } from "@/components/facets/AppearancePanel";
 import { facetsApi, type Facet } from "@/lib/api/facets";
 
 export default function EditFacetPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug: id } = useParams<{ slug: string }>();
   const router = useRouter();
   const [facet, setFacet] = useState<Facet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ export default function EditFacetPage() {
     education_ids: [] as string[],
     skill_ids: [] as string[],
     project_ids: [] as string[],
+    certification_ids: [] as string[],
   });
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function EditFacetPage() {
         education_ids: data.education_ids ?? [],
         skill_ids: data.skill_ids ?? [],
         project_ids: data.project_ids ?? [],
+        certification_ids: data.certification_ids ?? [],
       });
       setLoading(false);
     });
@@ -43,19 +46,26 @@ export default function EditFacetPage() {
   };
 
   if (loading) {
-    return <div className="text-muted-foreground">Loading...</div>;
+    return <div className="text-muted-foreground">Cargando...</div>;
   }
 
   return (
     <div className="max-w-3xl space-y-8">
       <h1 className="text-2xl font-bold">Editar faceta</h1>
       <FacetForm initial={facet ?? undefined} onSave={handleSave} saving={saving} />
+      <hr className="border-border" />
       <FacetItemSelector
         selectedExperienceIds={selected.experience_ids}
         selectedEducationIds={selected.education_ids}
         selectedSkillIds={selected.skill_ids}
         selectedProjectIds={selected.project_ids}
+        selectedCertificationIds={selected.certification_ids}
         onChange={handleSelectionChange}
+      />
+      <hr className="border-border" />
+      <AppearancePanel
+        facetId={id}
+        initial={facet?.theme_config ?? null}
       />
     </div>
   );

@@ -78,6 +78,12 @@ class PublicFacetResponse(BaseModel):
     meta_title: str | None
     meta_description: str | None
     pdf_template: str
+    pdf_layout: str = "classic"
+    web_layout: str = "single-column"
+    show_photo_web: bool = True
+    show_photo_pdf: bool = True
+    photo_shape: str = "circle"
+    theme_tokens: dict = {}
 
     full_name: str
     email: str

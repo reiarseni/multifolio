@@ -22,9 +22,9 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
         value=token,
         httponly=True,
         samesite="lax",
-        path="/auth/refresh",
+        path="/auth",
         max_age=COOKIE_MAX_AGE,
-        secure=False,
+        secure=settings.is_production,
     )
 
 
@@ -74,5 +74,5 @@ async def logout(
 ) -> dict:
     if refresh_token:
         await auth_service.logout_user(redis, refresh_token)
-    response.delete_cookie(key=COOKIE_NAME, path="/auth/refresh")
+    response.delete_cookie(key=COOKIE_NAME, path="/auth")
     return {"message": "Logged out"}

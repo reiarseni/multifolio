@@ -9,16 +9,24 @@ class RegisterRequest(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def password_min_length(cls, v: str) -> str:
+    def password_constraints(cls, v: str) -> str:
         if len(v) < 8:
-            msg = "Password must be at least 8 characters"
-            raise ValueError(msg)
+            raise ValueError("Password must be at least 8 characters")
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
         return v
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_max_length(cls, v: str) -> str:
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
+        return v
 
 
 class TokenResponse(BaseModel):

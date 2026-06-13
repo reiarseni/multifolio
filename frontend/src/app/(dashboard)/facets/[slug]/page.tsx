@@ -9,7 +9,7 @@ import { ShareButton } from "@/components/dashboard/ShareButton";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function FacetDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug: id } = useParams<{ slug: string }>();
   const [facet, setFacet] = useState<Facet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

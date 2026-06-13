@@ -27,10 +27,12 @@ async def save_upload_file(file: UploadFile) -> str:
 
     content_type = file.content_type or ""
     if content_type not in ALLOWED_CONTENT_TYPES:
-        allowed = ", ".join(sorted(ALLOWED_CONTENT_TYPES))
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Tipo de archivo no permitido. Tipos aceptados: {allowed}",
+            detail=(
+                "Tipo de archivo no permitido. Tipos aceptados: "
+                f"{', '.join(sorted(ALLOWED_CONTENT_TYPES))}"
+            ),
         )
 
     max_bytes = settings.max_upload_size_mb * 1024 * 1024
