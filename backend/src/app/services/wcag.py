@@ -45,8 +45,7 @@ def validate_wcag(tokens: dict) -> list[str]:
         ratio = contrast_ratio(fg, bg)
         if ratio < 4.5:
             errors.append(
-                f"Par {fg_key}/{bg_key} no cumple WCAG AA "
-                f"(ratio {ratio:.1f}, minimo 4.5:1)"
+                f"Par {fg_key}/{bg_key} no cumple WCAG AA (ratio {ratio:.1f}, minimo 4.5:1)"
             )
 
     return errors
@@ -59,7 +58,5 @@ def validate_external_assets(tokens: dict) -> list[str]:
             continue
         for key, value in group.items():
             if isinstance(value, str) and EXTERNAL_ASSET_PATTERN.search(value):
-                errors.append(
-                    f"Token {group_name}.{key} contiene asset externo: {value}"
-                )
+                errors.append(f"Token {group_name}.{key} contiene asset externo: {value}")
     return errors
