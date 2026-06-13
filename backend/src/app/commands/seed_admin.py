@@ -10,6 +10,7 @@ Uso:
   docker compose exec api seed-admin
   uv run seed-admin          # local, con .env cargado
 """
+
 import asyncio
 import os
 

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     allowed_origins: str = "http://localhost:3000"
     max_upload_size_mb: int = 10
-    media_dir: str = "/app/media"
+    media_dir: str = "./media"
 
     @property
     def is_production(self) -> bool:

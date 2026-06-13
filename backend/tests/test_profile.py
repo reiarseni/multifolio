@@ -3,11 +3,13 @@ from httpx import AsyncClient
 
 # ── helpers ─────────────────────────────────────────────────────────────────
 
+
 def _headers(access_token: str) -> dict:
     return {"Authorization": f"Bearer {access_token}"}
 
 
 # ── GET /api/profile ─────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_get_profile_auto_creates(client: AsyncClient, auth_tokens):
@@ -39,6 +41,7 @@ async def test_get_profile_requires_auth(client: AsyncClient):
 
 
 # ── PUT /api/profile ─────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_update_profile(client: AsyncClient, auth_tokens):

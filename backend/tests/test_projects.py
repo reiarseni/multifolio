@@ -20,6 +20,7 @@ async def created_project(client: AsyncClient, auth_tokens):
 
 # ── CREATE ───────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_create_project(client: AsyncClient, auth_tokens):
     token, _ = auth_tokens
@@ -41,6 +42,7 @@ async def test_create_project_requires_auth(client: AsyncClient):
 
 # ── LIST ─────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_list_projects_empty(client: AsyncClient, auth_tokens):
     token, _ = auth_tokens
@@ -58,6 +60,7 @@ async def test_list_projects(client: AsyncClient, auth_tokens, created_project):
 
 
 # ── GET ──────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_get_project(client: AsyncClient, created_project):
@@ -77,6 +80,7 @@ async def test_get_project_not_found(client: AsyncClient, auth_tokens):
 
 # ── UPDATE ───────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_update_project(client: AsyncClient, created_project):
     project, h = created_project
@@ -93,6 +97,7 @@ async def test_update_project(client: AsyncClient, created_project):
 
 # ── DELETE ───────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_delete_project(client: AsyncClient, created_project):
     project, h = created_project
@@ -104,6 +109,7 @@ async def test_delete_project(client: AsyncClient, created_project):
 
 
 # ── ISOLATION between users ──────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_project_isolation(client: AsyncClient, created_project):

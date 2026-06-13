@@ -19,9 +19,7 @@ async def _get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile | No
     return result.scalar_one_or_none()
 
 
-async def _ensure_profile(
-    db: AsyncSession, user_id: uuid.UUID
-) -> BaseProfile:
+async def _ensure_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
     profile = await _get_profile(db, user_id)
     if profile is None:
         profile = BaseProfile(user_id=user_id, full_name="")
@@ -63,9 +61,7 @@ async def get_project(db: AsyncSession, user_id: uuid.UUID, project_id: uuid.UUI
     return await _get_user_project(db, user_id, project_id)
 
 
-async def create_project(
-    db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate
-) -> Project:
+async def create_project(db: AsyncSession, user_id: uuid.UUID, data: ProjectCreate) -> Project:
     profile = await _ensure_profile(db, user_id)
     project = Project(profile_id=profile.id, **data.model_dump())
     db.add(project)
