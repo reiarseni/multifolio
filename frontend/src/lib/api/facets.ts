@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import { getToken } from "@/lib/auth/token";
+import type { FacetThemeConfig } from "@/lib/api/themes";
 
 export interface Facet {
   id: string;
@@ -18,6 +19,8 @@ export interface Facet {
   education_ids: string[];
   skill_ids: string[];
   project_ids: string[];
+  certification_ids: string[];
+  theme_config: FacetThemeConfig | null;
 }
 
 function getAuthHeaders(): Record<string, string> {
