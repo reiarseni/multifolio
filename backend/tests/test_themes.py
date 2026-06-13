@@ -93,13 +93,16 @@ async def test_delete_theme_predefined_name_forbidden(db_session: AsyncSession):
     """Test that deleting predefined themes is forbidden"""
     user_id = uuid.uuid4()
 
-    theme_data = ThemeCreate(
+    theme = Theme(
+        id=uuid.uuid4(),
+        owner_id=user_id,
         name="minimal",
         tokens={"color": {"primary": "#ff0000"}},
         is_public=False,
     )
-
-    theme = await create_theme(db_session, user_id, theme_data)
+    db_session.add(theme)
+    await db_session.commit()
+    await db_session.refresh(theme)
 
     with pytest.raises(HTTPException) as exc_info:
         await delete_theme(db_session, user_id, theme.id)
