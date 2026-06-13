@@ -41,21 +41,25 @@ async def _get_or_create_profile(db: AsyncSession, user_id: uuid.UUID) -> BasePr
     return profile
 
 
-async def get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+async def _load_full_profile(db: AsyncSession, profile_id: uuid.UUID) -> BaseProfile:
+    from app.models.user import User as UserModel  # avoid circular at module level
     result = await db.execute(
         select(BaseProfile)
-        .where(BaseProfile.user_id == user_id)
+        .where(BaseProfile.id == profile_id)
         .options(
+            selectinload(BaseProfile.user),
             selectinload(BaseProfile.experiences),
             selectinload(BaseProfile.educations),
             selectinload(BaseProfile.skills),
             selectinload(BaseProfile.certifications),
         )
     )
-    profile = result.scalar_one_or_none()
-    if profile is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return profile
+    return result.scalar_one()
+
+
+async def get_profile(db: AsyncSession, user_id: uuid.UUID) -> BaseProfile:
+    profile = await _get_or_create_profile(db, user_id)
+    return await _load_full_profile(db, profile.id)
 
 
 async def update_profile(
@@ -66,8 +70,7 @@ async def update_profile(
     for field, value in update_data.items():
         setattr(profile, field, value)
     await db.commit()
-    await db.refresh(profile)
-    return profile
+    return await _load_full_profile(db, profile.id)
 
 
 async def add_experience(

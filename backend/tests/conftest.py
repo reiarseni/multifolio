@@ -3,15 +3,18 @@ from unittest.mock import AsyncMock
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
 
 from app.db.base import Base
 from app.db.session import get_db_session
 from app.main import app
 from app.models.user import User  # noqa: F401
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
-
-engine = create_async_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_async_engine(
+    "sqlite+aiosqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 test_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 

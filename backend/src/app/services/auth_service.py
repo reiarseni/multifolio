@@ -5,10 +5,13 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import jwt
+
 from app.core.config import get_settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    decode_token,
     hash_password,
     verify_password,
 )
@@ -35,13 +38,18 @@ async def register_user(db: AsyncSession, email: str, password: str) -> User:
     return user
 
 
+_DUMMY_HASH = hash_password("dummy-timing-protection-hash")
+
+
 async def login_user(
     db: AsyncSession, redis: aioredis.Redis, email: str, password: str
 ) -> tuple[str, str]:
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
-    if not user or not verify_password(password, user.hashed_password):
+    # Always run bcrypt to avoid timing-based email enumeration
+    candidate_hash = user.hashed_password if user else _DUMMY_HASH
+    if not user or not verify_password(password, candidate_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     access_token = create_access_token(str(user.id))
@@ -54,6 +62,13 @@ async def login_user(
 
 
 async def refresh_tokens(redis: aioredis.Redis, refresh_token: str) -> tuple[str, str]:
+    try:
+        payload = decode_token(refresh_token)
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+
     user_id = await redis.get(_redis_key(refresh_token))
     if not user_id:
         raise HTTPException(
@@ -67,7 +82,7 @@ async def refresh_tokens(redis: aioredis.Redis, refresh_token: str) -> tuple[str
     new_refresh_token = create_refresh_token(uid)
 
     ttl = int(timedelta(days=settings.refresh_token_expire_days).total_seconds())
-    await redis.setex(_redis_key(new_refresh_token), ttl, user_id)
+    await redis.setex(_redis_key(new_refresh_token), ttl, uid)
 
     return new_access_token, new_refresh_token
 
