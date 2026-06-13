@@ -419,6 +419,11 @@ class FacetThemeConfig(Base):
     show_photo_web: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     show_photo_pdf: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     photo_shape: Mapped[str] = mapped_column(String(50), default="circle", nullable=False)
+    section_order: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        default=lambda: ["experiencias", "habilidades", "estudios", "proyectos", "certificaciones"],
+    )
 
     facet: Mapped["Facet"] = relationship(back_populates="theme_config")
     theme: Mapped["Theme"] = relationship()

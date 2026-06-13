@@ -24,6 +24,7 @@ class FacetThemeConfigResponse(BaseModel):
     show_photo_web: bool
     show_photo_pdf: bool
     photo_shape: str
+    section_order: list[str] | None = None
 
     model_config = {"from_attributes": True}
 
@@ -36,6 +37,7 @@ class FacetThemeConfigUpdate(BaseModel):
     show_photo_web: bool | None = None
     show_photo_pdf: bool | None = None
     photo_shape: str | None = None
+    section_order: list[str] | None = None
 
 
 class ThemeCreate(BaseModel):
