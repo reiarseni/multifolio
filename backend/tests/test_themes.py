@@ -6,7 +6,7 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.profile import Theme, FacetThemeConfig
+from app.models.profile import FacetThemeConfig, Theme
 from app.schemas.theme import ThemeCreate
 from app.services.themes import create_theme, delete_theme, list_themes
 
@@ -46,7 +46,7 @@ async def test_create_theme_predefined_name_forbidden(db_session: AsyncSession):
         await create_theme(db_session, user_id, theme_data)
 
     assert exc_info.value.status_code == 422
-    assert "No se puede crear un tema con el nombre" in str(exc_info.value.detail)
+    assert "predefinido" in str(exc_info.value.detail)
 
 
 @pytest.mark.asyncio

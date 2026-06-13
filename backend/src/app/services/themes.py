@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.profile import Theme, FacetThemeConfig
+from app.models.profile import FacetThemeConfig, Theme
 from app.schemas.theme import ThemeCreate
 
 PREDEFINED_THEME_NAMES = {"minimal", "formal", "bold"}
@@ -31,7 +31,7 @@ async def create_theme(db: AsyncSession, user_id: uuid.UUID, data: ThemeCreate) 
     if data.name.lower() in PREDEFINED_THEME_NAMES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="No se puede crear un tema con el nombre de uno de los temas predefinidos del sistema",
+            detail="Nombre de tema predefinido del sistema no permitido",
         )
 
     theme = Theme(
