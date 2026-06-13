@@ -52,19 +52,24 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
 
   const handleSave = async () => {
     setSaving(true);
-    await themesApi.updateFacetTheme(facetId, {
-      theme_id: form.theme_id || undefined,
-      theme_overrides: previewTokens,
-      web_layout: form.web_layout,
-      pdf_layout: form.pdf_layout,
-      show_photo_web: form.show_photo_web,
-      show_photo_pdf: form.show_photo_pdf,
-      photo_shape: form.photo_shape,
-    });
-    setSaved(true);
-    setSaving(false);
-    onSaved?.();
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await themesApi.updateFacetTheme(facetId, {
+        theme_id: form.theme_id || undefined,
+        theme_overrides: previewTokens,
+        web_layout: form.web_layout,
+        pdf_layout: form.pdf_layout,
+        show_photo_web: form.show_photo_web,
+        show_photo_pdf: form.show_photo_pdf,
+        photo_shape: form.photo_shape,
+      });
+      setSaved(true);
+      onSaved?.();
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error("Error saving appearance:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const updateToken = (group: string, key: string, value: string | number) => {

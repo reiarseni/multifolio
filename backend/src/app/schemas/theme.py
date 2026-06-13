@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ThemeResponse(BaseModel):
@@ -39,8 +39,8 @@ class FacetThemeConfigUpdate(BaseModel):
 
 
 class ThemeCreate(BaseModel):
-    name: str
-    tokens: dict
+    name: str = Field(..., min_length=1, max_length=255)
+    tokens: dict = Field(..., max_length=10000)
     is_public: bool = False
 
     model_config = {"from_attributes": True}

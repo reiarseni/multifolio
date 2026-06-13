@@ -6,9 +6,9 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.profile import Theme
+from app.models.profile import Theme, FacetThemeConfig
 from app.schemas.theme import ThemeCreate
-from app.services.themes import create_theme, delete_theme
+from app.services.themes import create_theme, delete_theme, list_themes
 
 
 @pytest.mark.asyncio
@@ -47,6 +47,41 @@ async def test_create_theme_predefined_name_forbidden(db_session: AsyncSession):
 
     assert exc_info.value.status_code == 422
     assert "No se puede crear un tema con el nombre" in str(exc_info.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_list_themes_includes_own_private(db_session: AsyncSession):
+    """Test that list_themes includes user's own private themes"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="My Private Theme",
+        tokens={"color": {"primary": "#000000"}},
+        is_public=False,
+    )
+
+    await create_theme(db_session, user_id, theme_data)
+
+    themes = await list_themes(db_session, user_id)
+    assert any(t.name == "My Private Theme" for t in themes)
+
+
+@pytest.mark.asyncio
+async def test_list_themes_excludes_others_private(db_session: AsyncSession):
+    """Test that list_themes excludes other users' private themes"""
+    user_id1 = uuid.uuid4()
+    user_id2 = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="Other Private Theme",
+        tokens={"color": {"primary": "#000000"}},
+        is_public=False,
+    )
+
+    await create_theme(db_session, user_id1, theme_data)
+
+    themes = await list_themes(db_session, user_id2)
+    assert not any(t.name == "Other Private Theme" for t in themes)
 
 
 @pytest.mark.asyncio
@@ -109,3 +144,36 @@ async def test_delete_theme_predefined_name_forbidden(db_session: AsyncSession):
 
     assert exc_info.value.status_code == 422
     assert "No se pueden eliminar los temas predefinidos del sistema" in str(exc_info.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_delete_theme_in_use_forbidden(db_session: AsyncSession):
+    """Test that deleting a theme in use by a facet is forbidden"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="Used Theme",
+        tokens={"color": {"primary": "#ff0000"}},
+        is_public=False,
+    )
+
+    theme = await create_theme(db_session, user_id, theme_data)
+
+    facet_config = FacetThemeConfig(
+        facet_id=uuid.uuid4(),
+        theme_id=theme.id,
+        theme_overrides=None,
+        web_layout="single-column",
+        pdf_layout="classic",
+        show_photo_web=True,
+        show_photo_pdf=True,
+        photo_shape="circle",
+    )
+    db_session.add(facet_config)
+    await db_session.commit()
+
+    with pytest.raises(HTTPException) as exc_info:
+        await delete_theme(db_session, user_id, theme.id)
+
+    assert exc_info.value.status_code == 409
+    assert "está siendo usado por una faceta" in str(exc_info.value.detail)
