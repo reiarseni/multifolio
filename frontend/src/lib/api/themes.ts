@@ -6,6 +6,7 @@ export interface Theme {
   name: string;
   tokens: Record<string, unknown>;
   is_public: boolean;
+  owner_id: string | null;
   created_at: string;
   updated_at: string;
 }
