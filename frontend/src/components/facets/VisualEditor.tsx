@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { themesApi, type Theme } from "@/lib/api/themes";
+import { useState } from "react";
+import { themesApi } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
 import { TokenControls } from "./TokenControls";
 
@@ -34,7 +34,6 @@ interface TokenGroup {
 const EMPTY_TOKENS: TokenGroup = { color: {}, typography: {}, spacing: {}, shape: {}, density: "balanced" };
 
 export function VisualEditor({ facetId, initial, onSaved }: Props) {
-  const [themes, setThemes] = useState<Theme[]>([]);
   const [form, setForm] = useState({
     theme_id: initial?.theme_id ?? "",
     web_layout: initial?.web_layout ?? "single-column",
@@ -48,14 +47,12 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
   const [activeTab, setActiveTab] = useState("color");
   const [previewTokens, setPreviewTokens] = useState<TokenGroup>(EMPTY_TOKENS);
 
-  useEffect(() => { themesApi.list().then(setThemes); }, []);
-
   const handleSave = async () => {
     setSaving(true);
     try {
       await themesApi.updateFacetTheme(facetId, {
         theme_id: form.theme_id || undefined,
-        theme_overrides: previewTokens,
+        theme_overrides: previewTokens as unknown as Record<string, unknown>,
         web_layout: form.web_layout,
         pdf_layout: form.pdf_layout,
         show_photo_web: form.show_photo_web,
@@ -83,10 +80,9 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
     try {
       const response = await themesApi.createCustomTheme({
         name: `Tema personalizado ${new Date().toLocaleDateString()}`,
-        tokens: previewTokens,
+        tokens: previewTokens as unknown as Record<string, unknown>,
         is_public: false,
       });
-      setThemes((prev) => [...prev, response]);
       setForm((f) => ({ ...f, theme_id: response.id }));
     } catch (error) {
       console.error("Error saving custom theme:", error);
