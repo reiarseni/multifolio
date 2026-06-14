@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.profile import FacetThemeConfig, Theme
 from app.schemas.theme import ThemeCreate
+from app.services.wcag import validate_external_assets, validate_wcag
 
 PREDEFINED_THEME_NAMES = {"minimal", "formal", "bold"}
 
@@ -16,6 +17,11 @@ async def list_themes(db: AsyncSession, user_id: uuid.UUID) -> list[Theme]:
         .where((Theme.is_public.is_(True)) | (Theme.owner_id == user_id))
         .order_by(Theme.name)
     )
+    return list(result.scalars().all())
+
+
+async def list_community_themes(db: AsyncSession) -> list[Theme]:
+    result = await db.execute(select(Theme).where(Theme.is_public.is_(True)).order_by(Theme.name))
     return list(result.scalars().all())
 
 
@@ -43,6 +49,55 @@ async def create_theme(db: AsyncSession, user_id: uuid.UUID, data: ThemeCreate) 
     )
 
     db.add(theme)
+    await db.commit()
+    await db.refresh(theme)
+
+    return theme
+
+
+async def publish_theme(db: AsyncSession, user_id: uuid.UUID, theme_id: uuid.UUID) -> Theme:
+    theme = await get_theme_or_404(db, theme_id)
+
+    if theme.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permiso para publicar este tema",
+        )
+
+    if theme.name.lower() in PREDEFINED_THEME_NAMES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No se pueden publicar los temas predefinidos del sistema",
+        )
+
+    asset_errors = validate_external_assets(theme.tokens)
+    wcag_errors = validate_wcag(theme.tokens) if not asset_errors else []
+    all_errors = asset_errors + wcag_errors
+
+    if all_errors:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Tema no cumple requisitos de publicación",
+            headers={"X-Validation-Errors": "; ".join(all_errors)},
+        )
+
+    theme.is_public = True
+    await db.commit()
+    await db.refresh(theme)
+
+    return theme
+
+
+async def unpublish_theme(db: AsyncSession, user_id: uuid.UUID, theme_id: uuid.UUID) -> Theme:
+    theme = await get_theme_or_404(db, theme_id)
+
+    if theme.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permiso para despublicar este tema",
+        )
+
+    theme.is_public = False
     await db.commit()
     await db.refresh(theme)
 

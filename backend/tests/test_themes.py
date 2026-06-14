@@ -8,7 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.profile import FacetThemeConfig, Theme
 from app.schemas.theme import ThemeCreate
-from app.services.themes import create_theme, delete_theme, list_themes
+from app.services.themes import (
+    create_theme,
+    delete_theme,
+    list_themes,
+    publish_theme,
+    unpublish_theme,
+)
 
 
 @pytest.mark.asyncio
@@ -177,3 +183,150 @@ async def test_delete_theme_in_use_forbidden(db_session: AsyncSession):
 
     assert exc_info.value.status_code == 409
     assert "está siendo usado por una faceta" in str(exc_info.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_publish_theme_success(db_session: AsyncSession):
+    """Test successful theme publication"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="Publishable Theme",
+        tokens={
+            "color": {
+                "primary": "#1a1a1a",
+                "background": "#ffffff",
+                "text_heading": "#1a1a1a",
+                "text_body": "#333333",
+                "text_muted": "#666666",
+                "accent": "#0066cc",
+                "surface": "#f5f5f5",
+                "border": "#e0e0e0",
+            }
+        },
+        is_public=False,
+    )
+
+    theme = await create_theme(db_session, user_id, theme_data)
+    published = await publish_theme(db_session, user_id, theme.id)
+
+    assert published.is_public is True
+
+
+@pytest.mark.asyncio
+async def test_publish_theme_wcag_fails(db_session: AsyncSession):
+    """Test that publish rejects themes failing WCAG"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="Bad Contrast Theme",
+        tokens={
+            "color": {
+                "primary": "#ffffff",
+                "background": "#ffffff",
+                "text_heading": "#ffffff",
+                "text_body": "#ffffff",
+                "text_muted": "#ffffff",
+                "accent": "#ffffff",
+                "surface": "#ffffff",
+                "border": "#ffffff",
+            }
+        },
+        is_public=False,
+    )
+
+    theme = await create_theme(db_session, user_id, theme_data)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await publish_theme(db_session, user_id, theme.id)
+
+    assert exc_info.value.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_publish_theme_external_assets_fails(db_session: AsyncSession):
+    """Test that publish rejects themes with external assets"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="External Asset Theme",
+        tokens={
+            "color": {
+                "primary": "#1a1a1a",
+                "background": "#ffffff",
+                "text_heading": "#1a1a1a",
+                "text_body": "#333333",
+                "text_muted": "#666666",
+                "accent": "url(https://example.com/font.woff)",
+                "surface": "#f5f5f5",
+                "border": "#e0e0e0",
+            }
+        },
+        is_public=False,
+    )
+
+    theme = await create_theme(db_session, user_id, theme_data)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await publish_theme(db_session, user_id, theme.id)
+
+    assert exc_info.value.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_publish_theme_not_owner(db_session: AsyncSession):
+    """Test that publishing another user's theme is forbidden"""
+    user_id1 = uuid.uuid4()
+    user_id2 = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="My Theme",
+        tokens={
+            "color": {
+                "primary": "#1a1a1a",
+                "background": "#ffffff",
+                "text_heading": "#1a1a1a",
+                "text_body": "#333333",
+                "text_muted": "#666666",
+                "accent": "#0066cc",
+                "surface": "#f5f5f5",
+                "border": "#e0e0e0",
+            }
+        },
+        is_public=False,
+    )
+
+    theme = await create_theme(db_session, user_id1, theme_data)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await publish_theme(db_session, user_id2, theme.id)
+
+    assert exc_info.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_unpublish_theme_success(db_session: AsyncSession):
+    """Test successful theme unpublish"""
+    user_id = uuid.uuid4()
+
+    theme_data = ThemeCreate(
+        name="Published Theme",
+        tokens={
+            "color": {
+                "primary": "#1a1a1a",
+                "background": "#ffffff",
+                "text_heading": "#1a1a1a",
+                "text_body": "#333333",
+                "text_muted": "#666666",
+                "accent": "#0066cc",
+                "surface": "#f5f5f5",
+                "border": "#e0e0e0",
+            }
+        },
+        is_public=True,
+    )
+
+    theme = await create_theme(db_session, user_id, theme_data)
+    unpublished = await unpublish_theme(db_session, user_id, theme.id)
+
+    assert unpublished.is_public is False

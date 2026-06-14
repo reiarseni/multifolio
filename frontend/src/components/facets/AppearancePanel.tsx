@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { themesApi, type Theme, type FacetThemeConfigUpdate } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
 import { VisualEditor } from "./VisualEditor";
+import { CommunityLibrary } from "./CommunityLibrary";
 
 interface Props {
   facetId: string;
@@ -42,6 +43,8 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showVisualEditor, setShowVisualEditor] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
+  const [publishing, setPublishing] = useState<string | null>(null);
 
   useEffect(() => {
     themesApi.list().then(setThemes);
@@ -56,34 +59,92 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const handlePublish = async (themeId: string) => {
+    setPublishing(themeId);
+    try {
+      await themesApi.publishTheme(themeId);
+      setThemes((prev) =>
+        prev.map((t) => (t.id === themeId ? { ...t, is_public: true } : t))
+      );
+    } catch (error) {
+      console.error("Error publishing theme:", error);
+    } finally {
+      setPublishing(null);
+    }
+  };
+
+  const handleUnpublish = async (themeId: string) => {
+    setPublishing(themeId);
+    try {
+      await themesApi.unpublishTheme(themeId);
+      setThemes((prev) =>
+        prev.map((t) => (t.id === themeId ? { ...t, is_public: false } : t))
+      );
+    } catch (error) {
+      console.error("Error unpublishing theme:", error);
+    } finally {
+      setPublishing(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Apariencia</h2>
-        <button onClick={() => setShowVisualEditor(!showVisualEditor)} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-          {showVisualEditor ? "Volver al panel básico" : "Editor visual avanzado"}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowCommunity(!showCommunity)} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+            {showCommunity ? "Volver a mis temas" : "Biblioteca de comunidad"}
+          </button>
+          <button onClick={() => setShowVisualEditor(!showVisualEditor)} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+            {showVisualEditor ? "Volver al panel basico" : "Editor visual avanzado"}
+          </button>
+        </div>
       </div>
 
       {showVisualEditor ? (
         <VisualEditor facetId={facetId} initial={initial} onSaved={onSaved} />
+      ) : showCommunity ? (
+        <CommunityLibrary facetId={facetId} onApplied={onSaved} />
       ) : (
         <>
           <div className="space-y-2">
             <label className="text-sm font-medium">Tema</label>
             <div className="grid grid-cols-3 gap-2">
               {themes.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setForm((f) => ({ ...f, theme_id: t.id }))}
-                  className={`border rounded-lg p-3 text-left text-sm transition-colors ${
-                    form.theme_id === t.id
-                      ? "border-primary bg-primary/5 font-medium"
-                      : "hover:bg-muted"
-                  }`}
-                >
-                  {t.name}
-                </button>
+                <div key={t.id} className="border rounded-lg p-3 text-left text-sm transition-colors space-y-1">
+                  <button
+                    onClick={() => setForm((f) => ({ ...f, theme_id: t.id }))}
+                    className={`w-full text-left ${
+                      form.theme_id === t.id
+                        ? "border-primary bg-primary/5 font-medium"
+                        : "hover:bg-muted"
+                    }`}
+                  >
+                    {t.name}
+                    {t.is_public && <span className="ml-1 text-xs text-muted-foreground">(publico)</span>}
+                  </button>
+                  {t.owner_id && (
+                    <div className="flex gap-1">
+                      {t.is_public ? (
+                        <button
+                          onClick={() => handleUnpublish(t.id)}
+                          disabled={publishing === t.id}
+                          className="text-xs px-2 py-0.5 border rounded hover:bg-muted transition-colors disabled:opacity-50"
+                        >
+                          Despublicar
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handlePublish(t.id)}
+                          disabled={publishing === t.id}
+                          className="text-xs px-2 py-0.5 border rounded hover:bg-muted transition-colors disabled:opacity-50"
+                        >
+                          Publicar
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>

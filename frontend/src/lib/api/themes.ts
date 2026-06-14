@@ -6,6 +6,7 @@ export interface Theme {
   name: string;
   tokens: Record<string, unknown>;
   is_public: boolean;
+  owner_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,8 +52,16 @@ export interface CustomThemeCreate {
 export const themesApi = {
   list: () => apiClient.get<Theme[]>("/api/themes", withAuth()),
 
+  listCommunity: () => apiClient.get<Theme[]>("/api/themes/community", withAuth()),
+
   createCustomTheme: (data: CustomThemeCreate) =>
     apiClient.post<Theme>("/api/themes", data, withAuth()),
+
+  publishTheme: (id: string) =>
+    apiClient.post<Theme>(`/api/themes/${id}/publish`, {}, withAuth()),
+
+  unpublishTheme: (id: string) =>
+    apiClient.post<Theme>(`/api/themes/${id}/unpublish`, {}, withAuth()),
 
   deleteCustomTheme: (id: string) =>
     apiClient.delete<Theme>(`/api/themes/${id}`, withAuth()),
