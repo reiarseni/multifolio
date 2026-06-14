@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { themesApi, type Theme, type FacetThemeConfigUpdate } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
+import { VisualEditor } from "./VisualEditor";
 
 interface Props {
   facetId: string;
@@ -40,6 +41,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showVisualEditor, setShowVisualEditor] = useState(false);
 
   useEffect(() => {
     themesApi.list().then(setThemes);
@@ -56,115 +58,126 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Apariencia</h2>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Tema</label>
-        <div className="grid grid-cols-3 gap-2">
-          {themes.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setForm((f) => ({ ...f, theme_id: t.id }))}
-              className={`border rounded-lg p-3 text-left text-sm transition-colors ${
-                form.theme_id === t.id
-                  ? "border-primary bg-primary/5 font-medium"
-                  : "hover:bg-muted"
-              }`}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Apariencia</h2>
+        <button onClick={() => setShowVisualEditor(!showVisualEditor)} className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+          {showVisualEditor ? "Volver al panel básico" : "Editor visual avanzado"}
+        </button>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Layout web</label>
-        <div className="flex gap-2">
-          {WEB_LAYOUTS.map((l) => (
-            <button
-              key={l.value}
-              onClick={() => setForm((f) => ({ ...f, web_layout: l.value }))}
-              className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
-                form.web_layout === l.value
-                  ? "border-primary bg-primary/5 font-medium"
-                  : "hover:bg-muted"
-              }`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {showVisualEditor ? (
+        <VisualEditor facetId={facetId} initial={initial} onSaved={onSaved} />
+      ) : (
+        <>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tema</label>
+            <div className="grid grid-cols-3 gap-2">
+              {themes.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setForm((f) => ({ ...f, theme_id: t.id }))}
+                  className={`border rounded-lg p-3 text-left text-sm transition-colors ${
+                    form.theme_id === t.id
+                      ? "border-primary bg-primary/5 font-medium"
+                      : "hover:bg-muted"
+                  }`}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Layout PDF</label>
-        <div className="flex gap-2">
-          {PDF_LAYOUTS.map((l) => (
-            <button
-              key={l.value}
-              onClick={() => setForm((f) => ({ ...f, pdf_layout: l.value }))}
-              className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
-                form.pdf_layout === l.value
-                  ? "border-primary bg-primary/5 font-medium"
-                  : "hover:bg-muted"
-              }`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Layout web</label>
+            <div className="flex gap-2">
+              {WEB_LAYOUTS.map((l) => (
+                <button
+                  key={l.value}
+                  onClick={() => setForm((f) => ({ ...f, web_layout: l.value }))}
+                  className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    form.web_layout === l.value
+                      ? "border-primary bg-primary/5 font-medium"
+                      : "hover:bg-muted"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Forma de la foto</label>
-        <div className="flex gap-2">
-          {PHOTO_SHAPES.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => setForm((f) => ({ ...f, photo_shape: s.value }))}
-              className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
-                form.photo_shape === s.value
-                  ? "border-primary bg-primary/5 font-medium"
-                  : "hover:bg-muted"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Layout PDF</label>
+            <div className="flex gap-2">
+              {PDF_LAYOUTS.map((l) => (
+                <button
+                  key={l.value}
+                  onClick={() => setForm((f) => ({ ...f, pdf_layout: l.value }))}
+                  className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    form.pdf_layout === l.value
+                      ? "border-primary bg-primary/5 font-medium"
+                      : "hover:bg-muted"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Visibilidad de la foto</label>
-        <div className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.show_photo_web ?? true}
-              onChange={(e) => setForm((f) => ({ ...f, show_photo_web: e.target.checked }))}
-              className="rounded"
-            />
-            Mostrar foto en la web pública
-          </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.show_photo_pdf ?? true}
-              onChange={(e) => setForm((f) => ({ ...f, show_photo_pdf: e.target.checked }))}
-              className="rounded"
-            />
-            Mostrar foto en el PDF
-          </label>
-        </div>
-      </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Forma de la foto</label>
+            <div className="flex gap-2">
+              {PHOTO_SHAPES.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => setForm((f) => ({ ...f, photo_shape: s.value }))}
+                  className={`border rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    form.photo_shape === s.value
+                      ? "border-primary bg-primary/5 font-medium"
+                      : "hover:bg-muted"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm disabled:opacity-50"
-      >
-        {saving ? "Guardando..." : saved ? "Guardado" : "Guardar apariencia"}
-      </button>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Visibilidad de la foto</label>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.show_photo_web ?? true}
+                  onChange={(e) => setForm((f) => ({ ...f, show_photo_web: e.target.checked }))}
+                  className="rounded"
+                />
+                Mostrar foto en la web pública
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.show_photo_pdf ?? true}
+                  onChange={(e) => setForm((f) => ({ ...f, show_photo_pdf: e.target.checked }))}
+                  className="rounded"
+                />
+                Mostrar foto en el PDF
+              </label>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm disabled:opacity-50"
+          >
+            {saving ? "Guardando..." : saved ? "Guardado" : "Guardar apariencia"}
+          </button>
+        </>
+      )}
     </div>
   );
 }

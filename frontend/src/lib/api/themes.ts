@@ -42,8 +42,20 @@ function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
   };
 }
 
+export interface CustomThemeCreate {
+  name: string;
+  tokens: Record<string, unknown>;
+  is_public: boolean;
+}
+
 export const themesApi = {
   list: () => apiClient.get<Theme[]>("/api/themes", withAuth()),
+
+  createCustomTheme: (data: CustomThemeCreate) =>
+    apiClient.post<Theme>("/api/themes", data, withAuth()),
+
+  deleteCustomTheme: (id: string) =>
+    apiClient.delete<Theme>(`/api/themes/${id}`, withAuth()),
 
   updateFacetTheme: (facetId: string, data: FacetThemeConfigUpdate) =>
     apiClient.put<FacetThemeConfig>(`/api/facets/${facetId}/theme`, data, withAuth()),
