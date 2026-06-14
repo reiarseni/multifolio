@@ -20,6 +20,7 @@ export interface FacetThemeConfig {
   show_photo_web: boolean;
   show_photo_pdf: boolean;
   photo_shape: string;
+  section_order: string[] | null;
 }
 
 export interface FacetThemeConfigUpdate {
@@ -30,6 +31,7 @@ export interface FacetThemeConfigUpdate {
   show_photo_web?: boolean;
   show_photo_pdf?: boolean;
   photo_shape?: string;
+  section_order?: string[];
 }
 
 function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
