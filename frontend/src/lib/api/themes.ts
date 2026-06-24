@@ -56,8 +56,13 @@ export const themesApi = {
 
   listCommunity: () => apiClient.get<Theme[]>("/api/themes/community", withAuth()),
 
+  get: (id: string) => apiClient.get<Theme>(`/api/themes/${id}`, withAuth()),
+
   createCustomTheme: (data: CustomThemeCreate) =>
     apiClient.post<Theme>("/api/themes", data, withAuth()),
+
+  update: (id: string, data: Partial<CustomThemeCreate>) =>
+    apiClient.put<Theme>(`/api/themes/${id}`, data, withAuth()),
 
   publishTheme: (id: string) =>
     apiClient.post<Theme>(`/api/themes/${id}/publish`, {}, withAuth()),
