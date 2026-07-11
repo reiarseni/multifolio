@@ -6,6 +6,7 @@ import { FacetForm } from "@/components/forms/FacetForm";
 import { FacetItemSelector } from "@/components/forms/FacetItemSelector";
 import { AppearancePanel } from "@/components/facets/AppearancePanel";
 import { facetsApi, type Facet } from "@/lib/api/facets";
+import { OpenToRoleForm } from "../open-to-role";
 
 export default function EditFacetPage() {
   const { slug: id } = useParams<{ slug: string }>();
@@ -67,6 +68,11 @@ export default function EditFacetPage() {
         facetId={id}
         initial={facet?.theme_config ?? null}
       />
+      <hr className="border-border" />
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Open to Roles</h2>
+        <OpenToRoleForm facetId={id} />
+      </div>
     </div>
   );
 }

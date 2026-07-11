@@ -1,7 +1,7 @@
 """add_github_repos
 
 Revision ID: 8e9f0a1b2c3d
-Revises: 6b3c4d5e6f7a
+Revises: 8d5e6f7a8b9c
 Create Date: 2026-07-11 13:00:00.000000
 
 """
@@ -14,7 +14,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 revision: str = "8e9f0a1b2c3d"
-down_revision: str | None = "6b3c4d5e6f7a"
+down_revision: str | None = "8d5e6f7a8b9c"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

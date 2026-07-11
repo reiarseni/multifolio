@@ -53,6 +53,14 @@ export interface PublicCertification {
   credential_url: string | null;
 }
 
+export interface PublicOpenToRole {
+  status: string;
+  role_type: string | null;
+  modality: string | null;
+  location: string | null;
+  timezone: string | null;
+}
+
 export interface PublicFacetResponse {
   slug: string;
   title: string | null;
@@ -72,6 +80,7 @@ export interface PublicFacetResponse {
   skills: PublicSkill[];
   certifications: PublicCertification[];
   projects: PublicProject[];
+  open_to_role: PublicOpenToRole | null;
   web_layout: string;
   pdf_layout: string;
   show_photo_web: boolean;

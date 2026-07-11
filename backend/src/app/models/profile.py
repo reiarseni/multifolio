@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import uuid
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     JSON,
@@ -19,6 +22,9 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.open_to_role import OpenToRole
 
 facet_work_experiences = Table(
     "facet_work_experiences",
@@ -131,21 +137,21 @@ class BaseProfile(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    user: Mapped["User"] = relationship(back_populates="profile")  # noqa: F821
+    user: Mapped[User] = relationship(back_populates="profile")  # noqa: F821
 
-    experiences: Mapped[list["WorkExperience"]] = relationship(
+    experiences: Mapped[list[WorkExperience]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
-    educations: Mapped[list["Education"]] = relationship(
+    educations: Mapped[list[Education]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
-    skills: Mapped[list["Skill"]] = relationship(
+    skills: Mapped[list[Skill]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
-    certifications: Mapped[list["Certification"]] = relationship(
+    certifications: Mapped[list[Certification]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
-    projects: Mapped[list["Project"]] = relationship(
+    projects: Mapped[list[Project]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )
 
@@ -175,9 +181,9 @@ class WorkExperience(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    profile: Mapped["BaseProfile"] = relationship(back_populates="experiences")
+    profile: Mapped[BaseProfile] = relationship(back_populates="experiences")
 
-    facets: Mapped[list["Facet"]] = relationship(
+    facets: Mapped[list[Facet]] = relationship(
         secondary="facet_work_experiences", back_populates="selected_experiences"
     )
 
@@ -205,9 +211,9 @@ class Education(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    profile: Mapped["BaseProfile"] = relationship(back_populates="educations")
+    profile: Mapped[BaseProfile] = relationship(back_populates="educations")
 
-    facets: Mapped[list["Facet"]] = relationship(
+    facets: Mapped[list[Facet]] = relationship(
         secondary="facet_educations", back_populates="selected_educations"
     )
 
@@ -232,9 +238,9 @@ class Skill(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    profile: Mapped["BaseProfile"] = relationship(back_populates="skills")
+    profile: Mapped[BaseProfile] = relationship(back_populates="skills")
 
-    facets: Mapped[list["Facet"]] = relationship(
+    facets: Mapped[list[Facet]] = relationship(
         secondary="facet_skills", back_populates="selected_skills"
     )
 
@@ -260,9 +266,9 @@ class Certification(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    profile: Mapped["BaseProfile"] = relationship(back_populates="certifications")
+    profile: Mapped[BaseProfile] = relationship(back_populates="certifications")
 
-    facets: Mapped[list["Facet"]] = relationship(
+    facets: Mapped[list[Facet]] = relationship(
         secondary="facet_certifications", back_populates="selected_certifications"
     )
 
@@ -289,14 +295,14 @@ class Project(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    profile: Mapped["BaseProfile"] = relationship(back_populates="projects")
-    facets: Mapped[list["Facet"]] = relationship(
+    profile: Mapped[BaseProfile] = relationship(back_populates="projects")
+    facets: Mapped[list[Facet]] = relationship(
         secondary="facet_projects", back_populates="selected_projects"
     )
-    images: Mapped[list["ProjectImage"]] = relationship(
+    images: Mapped[list[ProjectImage]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
-    attachments: Mapped[list["ProjectAttachment"]] = relationship(
+    attachments: Mapped[list[ProjectAttachment]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
 
@@ -316,7 +322,7 @@ class ProjectImage(Base):
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    project: Mapped["Project"] = relationship(back_populates="images")
+    project: Mapped[Project] = relationship(back_populates="images")
 
 
 class ProjectAttachment(Base):
@@ -335,7 +341,7 @@ class ProjectAttachment(Base):
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    project: Mapped["Project"] = relationship(back_populates="attachments")
+    project: Mapped[Project] = relationship(back_populates="attachments")
 
 
 class Facet(Base):
@@ -361,25 +367,28 @@ class Facet(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    user: Mapped["User"] = relationship(back_populates="facets")  # noqa: F821
+    user: Mapped[User] = relationship(back_populates="facets")  # noqa: F821
 
-    selected_experiences: Mapped[list["WorkExperience"]] = relationship(
+    selected_experiences: Mapped[list[WorkExperience]] = relationship(
         secondary="facet_work_experiences", back_populates="facets"
     )
-    selected_educations: Mapped[list["Education"]] = relationship(
+    selected_educations: Mapped[list[Education]] = relationship(
         secondary="facet_educations", back_populates="facets"
     )
-    selected_skills: Mapped[list["Skill"]] = relationship(
+    selected_skills: Mapped[list[Skill]] = relationship(
         secondary="facet_skills", back_populates="facets"
     )
-    selected_projects: Mapped[list["Project"]] = relationship(
+    selected_projects: Mapped[list[Project]] = relationship(
         secondary="facet_projects", back_populates="facets"
     )
-    selected_certifications: Mapped[list["Certification"]] = relationship(
+    selected_certifications: Mapped[list[Certification]] = relationship(
         secondary="facet_certifications", back_populates="facets"
     )
 
-    theme_config: Mapped["FacetThemeConfig"] = relationship(
+    theme_config: Mapped[FacetThemeConfig] = relationship(
+        back_populates="facet", uselist=False, cascade="all, delete-orphan"
+    )
+    open_to_role: Mapped[OpenToRole] = relationship(
         back_populates="facet", uselist=False, cascade="all, delete-orphan"
     )
 
@@ -425,5 +434,5 @@ class FacetThemeConfig(Base):
         default=lambda: ["experiencias", "habilidades", "estudios", "proyectos", "certificaciones"],
     )
 
-    facet: Mapped["Facet"] = relationship(back_populates="theme_config")
-    theme: Mapped["Theme"] = relationship()
+    facet: Mapped[Facet] = relationship(back_populates="theme_config")
+    theme: Mapped[Theme] = relationship()

@@ -1,6 +1,7 @@
 import type { PublicFacetResponse } from "@/lib/api/public";
 import { CVHeader } from "@/components/cv/CVHeader";
 import { CVSkills } from "@/components/cv/CVSkills";
+import { OpenToRoleBadge } from "@/components/profile/OpenToRoleBadge";
 
 export function ModularLayout({ data }: { data: PublicFacetResponse }) {
   return (
@@ -9,6 +10,17 @@ export function ModularLayout({ data }: { data: PublicFacetResponse }) {
       style={{ backgroundColor: "var(--color-background, white)", fontFamily: "var(--font-body, inherit)" }}
     >
       <CVHeader data={data} />
+
+      {data.open_to_role && data.open_to_role.status !== "not_available" && (
+        <div className="mt-4">
+          <OpenToRoleBadge
+            status={data.open_to_role.status}
+            role_type={data.open_to_role.role_type}
+            modality={data.open_to_role.modality}
+            location={data.open_to_role.location}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {data.experiences.length > 0 && (
