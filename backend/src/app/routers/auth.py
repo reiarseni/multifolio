@@ -7,7 +7,6 @@ from app.core.config import get_settings
 from app.core.deps import get_redis
 from app.core.oauth import (
     generate_state,
-    get_provider_callback,
     get_provider_client,
     store_state,
     validate_state,

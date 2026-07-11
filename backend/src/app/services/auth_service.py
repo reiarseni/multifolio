@@ -1,5 +1,4 @@
 import secrets
-import uuid
 from datetime import timedelta
 
 import jwt
