@@ -382,6 +382,9 @@ class Facet(Base):
     theme_config: Mapped["FacetThemeConfig"] = relationship(
         back_populates="facet", uselist=False, cascade="all, delete-orphan"
     )
+    open_to_role: Mapped["OpenToRole"] = relationship(
+        back_populates="facet", uselist=False, cascade="all, delete-orphan"
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)
 

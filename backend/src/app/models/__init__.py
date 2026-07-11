@@ -11,4 +11,5 @@ from app.models.profile import (  # noqa: F401
     Theme,
     WorkExperience,
 )
+from app.models.open_to_role import OpenToRole  # noqa: F401
 from app.models.user import User  # noqa: F401
