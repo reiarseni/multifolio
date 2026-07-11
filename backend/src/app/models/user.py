@@ -15,6 +15,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    provider_user_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -24,5 +26,8 @@ class User(Base):
         back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     facets: Mapped[list["Facet"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    github_repos: Mapped[list["GitHubRepo"]] = relationship(  # noqa: F821
         back_populates="user", cascade="all, delete-orphan"
     )
