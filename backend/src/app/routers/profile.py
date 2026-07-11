@@ -35,6 +35,14 @@ async def get_profile(
     return await profile_service.get_profile(db, current_user.id)
 
 
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_profile(
+    db: AsyncSession = Depends(get_db_session),
+    current_user: User = Depends(get_current_user),
+):
+    await profile_service.delete_profile(db, current_user.id)
+
+
 @router.put("", response_model=BaseProfileResponse)
 async def update_profile(
     body: BaseProfileUpdate,

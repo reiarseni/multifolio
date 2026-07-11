@@ -72,6 +72,14 @@ async def update_profile(
     return await _load_full_profile(db, profile.id)
 
 
+async def delete_profile(db: AsyncSession, user_id: uuid.UUID) -> None:
+    profile = await _get_profile(db, user_id)
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    await db.delete(profile)
+    await db.commit()
+
+
 async def add_experience(
     db: AsyncSession, user_id: uuid.UUID, data: WorkExperienceCreate
 ) -> WorkExperience:

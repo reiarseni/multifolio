@@ -77,14 +77,13 @@ async def update_project(
     return await projects_service.update_project(db, current_user.id, project_id, body)
 
 
-@router.delete("/{project_id}")
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ):
     await projects_service.delete_project(db, current_user.id, project_id)
-    return {"message": "Project deleted"}
 
 
 @router.post("/{project_id}/images", response_model=ProjectImageResponse, status_code=201)

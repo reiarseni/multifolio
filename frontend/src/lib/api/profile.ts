@@ -89,6 +89,8 @@ export const profileApi = {
   update: (data: Partial<BaseProfile>) =>
     apiClient.put<BaseProfile>("/api/profile", data, withAuth()),
 
+  delete: () => apiClient.delete("/api/profile", withAuth()),
+
   createExperience: (data: Partial<WorkExperience>) =>
     apiClient.post<WorkExperience>("/api/profile/experiences", data, withAuth()),
 

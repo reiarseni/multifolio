@@ -48,5 +48,11 @@ class ThemeCreate(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ThemeUpdate(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=255)
+    tokens: dict | None = Field(None, max_length=10000)
+    is_public: bool | None = None
+
+
 class ThemeDelete(BaseModel):
     id: uuid.UUID
