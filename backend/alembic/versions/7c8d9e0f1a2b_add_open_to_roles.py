@@ -1,7 +1,7 @@
 """add_open_to_roles
 
 Revision ID: 7c8d9e0f1a2b
-Revises: 6b3c4d5e6f7a
+Revises: 7c4d5e6f7a8b
 Create Date: 2026-07-11 12:00:00.000000
 
 """
@@ -14,7 +14,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 revision: str = "7c8d9e0f1a2b"
-down_revision: str | None = "6b3c4d5e6f7a"
+down_revision: str | None = "7c4d5e6f7a8b"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

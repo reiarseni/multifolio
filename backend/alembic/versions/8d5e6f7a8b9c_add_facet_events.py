@@ -1,7 +1,7 @@
 """add_facet_events
 
 Revision ID: 8d5e6f7a8b9c
-Revises: 6b3c4d5e6f7a
+Revises: 7c8d9e0f1a2b
 Create Date: 2026-07-11 14:00:00.000000
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "8d5e6f7a8b9c"
-down_revision: str | None = "6b3c4d5e6f7a"
+down_revision: str | None = "7c8d9e0f1a2b"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
