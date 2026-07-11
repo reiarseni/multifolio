@@ -13,8 +13,8 @@ GITHUB_API_BASE = "https://api.github.com"
 
 def _parse_repo_url(url: str) -> tuple[str, str]:
     patterns = [
-        r"github\.com/([^/]+)/([^/]+?)(?:\.git)?$",
-        r"github\.com/([^/]+)/([^/]+)/?$",
+        r"^https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?$",
+        r"^https?://github\.com/([^/]+)/([^/]+)/?$",
     ]
     for pattern in patterns:
         match = re.search(pattern, url.rstrip("/"))
@@ -107,6 +107,7 @@ async def sync_repo_stats(db: AsyncSession, repo_id) -> GitHubRepo:
     repo.last_synced_at = datetime.now(UTC)
 
     await db.commit()
+    await db.refresh(repo)
     return repo
 
 
