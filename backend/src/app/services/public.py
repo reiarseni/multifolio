@@ -20,6 +20,7 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
             selectinload(Facet.selected_certifications),
             selectinload(Facet.selected_projects).selectinload(Project.images),
             selectinload(Facet.theme_config).selectinload(FacetThemeConfig.theme),
+            selectinload(Facet.open_to_role),
         )
     )
     facet = result.scalar_one_or_none()
@@ -66,4 +67,5 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
         "skills": facet.selected_skills or [],
         "certifications": facet.selected_certifications or [],
         "projects": facet.selected_projects or [],
+        "open_to_role": facet.open_to_role,
     }

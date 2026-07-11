@@ -71,6 +71,16 @@ class PublicCertification(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PublicOpenToRole(BaseModel):
+    status: str
+    role_type: str | None
+    modality: str | None
+    location: str | None
+    timezone: str | None
+
+    model_config = {"from_attributes": True}
+
+
 class PublicFacetResponse(BaseModel):
     slug: str
     title: str | None
@@ -98,3 +108,4 @@ class PublicFacetResponse(BaseModel):
     skills: list[PublicSkill] = []
     certifications: list[PublicCertification] = []
     projects: list[PublicProject] = []
+    open_to_role: PublicOpenToRole | None = None
