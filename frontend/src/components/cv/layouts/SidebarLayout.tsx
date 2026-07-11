@@ -2,6 +2,7 @@ import type { PublicFacetResponse } from "@/lib/api/public";
 import { CVExperience } from "@/components/cv/CVExperience";
 import { CVEducation } from "@/components/cv/CVEducation";
 import { CVProjects } from "@/components/cv/CVProjects";
+import { OpenToRoleBadge } from "@/components/profile/OpenToRoleBadge";
 
 const PHOTO_SHAPE_CLASS: Record<string, string> = {
   circle: "rounded-full",
@@ -68,6 +69,23 @@ export function SidebarLayout({ data }: { data: PublicFacetResponse }) {
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {data.open_to_role && data.open_to_role.status !== "not_available" && (
+          <div>
+            <h2
+              className="text-sm font-semibold mb-2 border-b pb-1"
+              style={{ color: "var(--color-text-heading, inherit)", borderColor: "var(--color-border, currentColor)" }}
+            >
+              Disponibilidad
+            </h2>
+            <OpenToRoleBadge
+              status={data.open_to_role.status}
+              role_type={data.open_to_role.role_type}
+              modality={data.open_to_role.modality}
+              location={data.open_to_role.location}
+            />
           </div>
         )}
       </aside>

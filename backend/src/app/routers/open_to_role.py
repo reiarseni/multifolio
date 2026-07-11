@@ -12,7 +12,7 @@ from app.services import open_to_role_service
 router = APIRouter(prefix="/facets", tags=["open-to-role"])
 
 
-@router.patch("/{facet_id}/open-to-role", response_model=OpenToRoleResponse)
+@router.put("/{facet_id}/open-to-role", response_model=OpenToRoleResponse)
 async def upsert_open_to_role(
     facet_id: uuid.UUID,
     body: OpenToRoleUpdate,
