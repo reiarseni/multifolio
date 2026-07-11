@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import get_settings
-from app.routers import auth, analytics, facets, health, profile, projects, public, upload
+from app.routers import analytics, auth, facets, health, profile, projects, public, upload
 from app.routers import themes as themes_router
 
 settings = get_settings()
