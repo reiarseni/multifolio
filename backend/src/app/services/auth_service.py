@@ -1,3 +1,5 @@
+import secrets
+import uuid
 from datetime import timedelta
 
 import jwt
@@ -94,3 +96,43 @@ async def refresh_tokens(redis: aioredis.Redis, refresh_token: str) -> tuple[str
 
 async def logout_user(redis: aioredis.Redis, refresh_token: str) -> None:
     await redis.delete(_redis_key(refresh_token))
+
+
+async def social_login_or_register(
+    db: AsyncSession,
+    provider: str,
+    provider_user_id: str,
+    email: str,
+    name: str | None = None,
+) -> User:
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        user.auth_provider = provider
+        user.provider_user_id = provider_user_id
+    else:
+        random_password = secrets.token_urlsafe(32)
+        user = User(
+            email=email,
+            hashed_password=hash_password(random_password),
+            auth_provider=provider,
+            provider_user_id=provider_user_id,
+        )
+        db.add(user)
+
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+async def create_social_tokens(
+    redis: aioredis.Redis, user: User
+) -> tuple[str, str]:
+    access_token = create_access_token(str(user.id))
+    refresh_token = create_refresh_token(str(user.id))
+
+    ttl = int(timedelta(days=settings.refresh_token_expire_days).total_seconds())
+    await redis.setex(_redis_key(refresh_token), ttl, str(user.id))
+
+    return access_token, refresh_token
