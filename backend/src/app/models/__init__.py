@@ -1,3 +1,4 @@
+from app.models.analytics import FacetEvent  # noqa: F401
 from app.models.profile import (  # noqa: F401
     BaseProfile,
     Certification,
