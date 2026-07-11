@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.db.session import async_session
 from app.models.analytics import FacetEvent
