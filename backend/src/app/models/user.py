@@ -26,3 +26,6 @@ class User(Base):
     facets: Mapped[list["Facet"]] = relationship(  # noqa: F821
         back_populates="user", cascade="all, delete-orphan"
     )
+    github_repos: Mapped[list["GitHubRepo"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )
