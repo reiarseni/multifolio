@@ -167,9 +167,7 @@ async def oauth_callback(
             detail="Could not retrieve email from OAuth provider",
         )
 
-    user = await auth_service.social_login_or_register(
-        db, provider, provider_user_id, email, name
-    )
+    user = await auth_service.social_login_or_register(db, provider, provider_user_id, email, name)
 
     access_token_jwt, refresh_token = await auth_service.create_social_tokens(redis, user)
 

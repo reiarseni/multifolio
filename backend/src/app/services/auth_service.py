@@ -125,9 +125,7 @@ async def social_login_or_register(
     return user
 
 
-async def create_social_tokens(
-    redis: aioredis.Redis, user: User
-) -> tuple[str, str]:
+async def create_social_tokens(redis: aioredis.Redis, user: User) -> tuple[str, str]:
     access_token = create_access_token(str(user.id))
     refresh_token = create_refresh_token(str(user.id))
 
