@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import get_settings
-from app.routers import auth, facets, github, health, profile, projects, public, upload
+from app.routers import analytics, auth, facets, github, health, profile, projects, public, upload
 from app.routers import themes as themes_router
 
 settings = get_settings()
@@ -29,6 +29,7 @@ app.include_router(facets.router, prefix="/api")
 app.include_router(github.router, prefix="/api")
 app.include_router(themes_router.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
+app.include_router(analytics.router, prefix="/api")
 app.include_router(public.router)
 
 app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")
