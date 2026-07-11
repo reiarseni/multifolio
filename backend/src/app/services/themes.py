@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.profile import FacetThemeConfig, Theme
-from app.schemas.theme import ThemeCreate
+from app.schemas.theme import ThemeCreate, ThemeUpdate
 from app.services.wcag import validate_external_assets, validate_wcag
 
 PREDEFINED_THEME_NAMES = {"minimal", "formal", "bold"}
@@ -23,6 +23,38 @@ async def list_themes(db: AsyncSession, user_id: uuid.UUID) -> list[Theme]:
 async def list_community_themes(db: AsyncSession) -> list[Theme]:
     result = await db.execute(select(Theme).where(Theme.is_public.is_(True)).order_by(Theme.name))
     return list(result.scalars().all())
+
+
+async def get_theme(db: AsyncSession, user_id: uuid.UUID, theme_id: uuid.UUID) -> Theme:
+    theme = await get_theme_or_404(db, theme_id)
+    if theme.owner_id != user_id and not theme.is_public:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return theme
+
+
+async def update_theme(
+    db: AsyncSession, user_id: uuid.UUID, theme_id: uuid.UUID, data: ThemeUpdate
+) -> Theme:
+    theme = await get_theme_or_404(db, theme_id)
+
+    if theme.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permiso para editar este tema",
+        )
+
+    if theme.name.lower() in PREDEFINED_THEME_NAMES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No se pueden editar los temas predefinidos del sistema",
+        )
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(theme, field, value)
+
+    await db.commit()
+    await db.refresh(theme)
+    return theme
 
 
 async def get_theme_or_404(db: AsyncSession, theme_id: uuid.UUID) -> Theme:

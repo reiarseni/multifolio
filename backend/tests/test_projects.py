@@ -102,7 +102,7 @@ async def test_update_project(client: AsyncClient, created_project):
 async def test_delete_project(client: AsyncClient, created_project):
     project, h = created_project
     resp = await client.delete(f"/api/projects/{project['id']}", headers=h)
-    assert resp.status_code == 200
+    assert resp.status_code == 204
 
     resp = await client.get(f"/api/projects/{project['id']}", headers=h)
     assert resp.status_code == 404
