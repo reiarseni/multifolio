@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     github_client_id: str = ""
     github_client_secret: str = ""
+    openai_api_key: str = ""
 
     @property
     def is_production(self) -> bool:
