@@ -8,6 +8,7 @@ from app.core.config import get_settings
 from app.routers import (
     analytics,
     auth,
+    comments,
     facets,
     github,
     health,
@@ -15,6 +16,7 @@ from app.routers import (
     profile,
     projects,
     public,
+    review_links,
     upload,
 )
 from app.routers import themes as themes_router
@@ -42,6 +44,8 @@ app.include_router(open_to_role.router, prefix="/api")
 app.include_router(themes_router.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
+app.include_router(comments.router, prefix="/api")
+app.include_router(review_links.router, prefix="/api")
 app.include_router(public.router)
 
 app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")
