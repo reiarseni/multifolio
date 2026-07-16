@@ -81,9 +81,7 @@ async def test_list_review_links(client: AsyncClient, auth_tokens, created_facet
         headers=headers,
     )
 
-    resp = await client.get(
-        f"/api/facets/{facet_data['id']}/review-links", headers=headers
-    )
+    resp = await client.get(f"/api/facets/{facet_data['id']}/review-links", headers=headers)
     assert resp.status_code == 200
     data = resp.json()
     assert len(data) == 2
@@ -103,9 +101,7 @@ async def test_delete_review_link(client: AsyncClient, auth_tokens, created_face
     resp = await client.delete(f"/api/review-links/{link_id}", headers=headers)
     assert resp.status_code == 204
 
-    list_resp = await client.get(
-        f"/api/facets/{facet_data['id']}/review-links", headers=headers
-    )
+    list_resp = await client.get(f"/api/facets/{facet_data['id']}/review-links", headers=headers)
     assert len(list_resp.json()) == 0
 
 
