@@ -453,4 +453,3 @@ async def test_list_review_links_no_facet(client: AsyncClient, auth_tokens):
 
     resp = await client.get(f"/api/facets/{uuid.uuid4()}/review-links", headers=headers)
     assert resp.status_code == 404
-
