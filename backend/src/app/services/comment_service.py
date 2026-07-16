@@ -5,6 +5,7 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.comment import Comment
 from app.models.profile import Facet
@@ -59,21 +60,31 @@ async def create_comment_by_token(db: AsyncSession, token: str, data: CommentCre
     db.add(comment)
     await db.commit()
     await db.refresh(comment)
-    return comment
+    # eagerly load replies for serialization
+    result = await db.execute(
+        select(Comment).where(Comment.id == comment.id).options(selectinload(Comment.replies))
+    )
+    return result.scalar_one()
 
 
 async def get_comments_by_token(db: AsyncSession, token: str) -> list[Comment]:
     facet = await _get_facet_by_link(db, token)
 
     result = await db.execute(
-        select(Comment).where(Comment.facet_id == facet.id).order_by(Comment.created_at.asc())
+        select(Comment)
+        .where(Comment.facet_id == facet.id)
+        .options(selectinload(Comment.replies))
+        .order_by(Comment.created_at.asc())
     )
     return list(result.scalars().all())
 
 
 async def get_comments_by_facet_id(db: AsyncSession, facet_id: uuid.UUID) -> list[Comment]:
     result = await db.execute(
-        select(Comment).where(Comment.facet_id == facet_id).order_by(Comment.created_at.asc())
+        select(Comment)
+        .where(Comment.facet_id == facet_id)
+        .options(selectinload(Comment.replies))
+        .order_by(Comment.created_at.asc())
     )
     return list(result.scalars().all())
 
@@ -96,7 +107,10 @@ async def resolve_comment(db: AsyncSession, user_id: uuid.UUID, comment_id: uuid
     comment.status = "resolved"
     await db.commit()
     await db.refresh(comment)
-    return comment
+    result = await db.execute(
+        select(Comment).where(Comment.id == comment.id).options(selectinload(Comment.replies))
+    )
+    return result.scalar_one()
 
 
 async def get_unread_count(db: AsyncSession, user_id: uuid.UUID) -> int:
