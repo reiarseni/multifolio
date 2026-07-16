@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 
-from app.schemas.story import StorySectionResponse
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,6 +14,7 @@ from app.schemas.ai import (
     AISuggestionResponse,
     ApplySuggestionRequest,
 )
+from app.schemas.story import StorySectionResponse
 from app.services import ai_story_service
 
 router = APIRouter(tags=["ai"])

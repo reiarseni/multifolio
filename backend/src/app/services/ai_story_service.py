@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 
-from app.models.story_section import StorySection
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,6 +19,7 @@ from app.core.llm_client import (
     suggest_headline as llm_suggest_headline,
 )
 from app.models.profile import Facet
+from app.models.story_section import StorySection
 from app.schemas.ai import (
     AIHeadlineResponse,
     AISuggestionResponse,
