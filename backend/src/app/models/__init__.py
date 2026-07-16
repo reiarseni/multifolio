@@ -15,4 +15,5 @@ from app.models.profile import (  # noqa: F401
     WorkExperience,
 )
 from app.models.review_link import ReviewLink  # noqa: F401
+from app.models.story_section import StorySection  # noqa: F401
 from app.models.user import User  # noqa: F401
