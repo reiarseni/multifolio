@@ -10,7 +10,6 @@ class AISuggestionRequest(BaseModel):
 
 
 class AIHeadlineRequest(BaseModel):
-    facet_id: uuid.UUID
     target_role: str
 
 
