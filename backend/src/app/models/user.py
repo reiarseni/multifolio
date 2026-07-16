@@ -1,11 +1,16 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.profile import Facet
+    from app.models.review_link import ReviewLink
 
 
 class User(Base):
@@ -30,4 +35,7 @@ class User(Base):
     )
     github_repos: Mapped[list["GitHubRepo"]] = relationship(  # noqa: F821
         back_populates="user", cascade="all, delete-orphan"
+    )
+    review_links: Mapped[list["ReviewLink"]] = relationship(  # noqa: F821
+        back_populates="creator", cascade="all, delete-orphan"
     )
