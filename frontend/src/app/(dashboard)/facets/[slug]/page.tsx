@@ -42,12 +42,20 @@ export default function FacetDetailPage() {
           <h1 className="text-2xl font-bold">{facet.name}</h1>
           <p className="text-sm text-muted-foreground font-mono">/{facet.slug}</p>
         </div>
-        <Link
-          href={`/facets/${facet.id}/edit`}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm"
-        >
-          Editar
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/facets/${facet.id}/seo`}
+            className="border px-4 py-2 rounded-md text-sm hover:bg-muted"
+          >
+            SEO
+          </Link>
+          <Link
+            href={`/facets/${facet.id}/edit`}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm"
+          >
+            Editar
+          </Link>
+        </div>
       </div>
 
       <div className="border rounded-md p-4 space-y-3">
