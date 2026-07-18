@@ -36,9 +36,7 @@ async def _async_notify_notable_visit(
         return {"notification_created": False, "reason": "not_notable"}
 
     async with async_session_factory() as db:
-        result = await db.execute(
-            select(Facet).where(Facet.id == facet_id)
-        )
+        result = await db.execute(select(Facet).where(Facet.id == facet_id))
         facet = result.scalar_one_or_none()
 
         if not facet or not facet.user_id:

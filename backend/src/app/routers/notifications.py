@@ -32,6 +32,7 @@ async def mark_notification_read(
     result = await ns.mark_as_read(db, notification_id, current_user.id)
     if not result:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="Notification not found")
     return result
 
