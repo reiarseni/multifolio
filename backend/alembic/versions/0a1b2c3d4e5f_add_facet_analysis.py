@@ -22,8 +22,19 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     op.create_table(
         "facet_analyses",
-        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
-        sa.Column("facet_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("facets.id", ondelete="CASCADE"), nullable=False, index=True),
+        sa.Column(
+            "id",
+            postgresql.UUID(as_uuid=True),
+            primary_key=True,
+            server_default=sa.text("gen_random_uuid()"),
+        ),
+        sa.Column(
+            "facet_id",
+            postgresql.UUID(as_uuid=True),
+            sa.ForeignKey("facets.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        ),
         sa.Column("job_title", sa.String(255), nullable=True),
         sa.Column("job_company", sa.String(255), nullable=True),
         sa.Column("overall_score", sa.Float(), nullable=False),
@@ -31,8 +42,18 @@ def upgrade() -> None:
         sa.Column("experience_score", sa.Float(), nullable=False),
         sa.Column("stack_score", sa.Float(), nullable=False),
         sa.Column("tone_score", sa.Float(), nullable=False),
-        sa.Column("gaps", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")),
-        sa.Column("suggestions", postgresql.JSONB(), nullable=False, server_default=sa.text("'[]'::jsonb")),
+        sa.Column(
+            "gaps",
+            postgresql.JSONB(),
+            nullable=False,
+            server_default=sa.text("'[]'::jsonb"),
+        ),
+        sa.Column(
+            "suggestions",
+            postgresql.JSONB(),
+            nullable=False,
+            server_default=sa.text("'[]'::jsonb"),
+        ),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 

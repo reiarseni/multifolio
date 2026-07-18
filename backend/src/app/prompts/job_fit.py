@@ -14,7 +14,8 @@ Job posting:
 
 Return ONLY valid JSON, no markdown, no explanation."""
 
-COMPARE_WITH_FACET_PROMPT = """You are a job market fit analyst. Compare a professional's profile against job requirements.
+COMPARE_WITH_FACET_PROMPT = (
+    """You are a job market fit analyst. Compare a professional's profile against job requirements.
 
 FACET CONTENT:
 {facet_json}
@@ -51,9 +52,11 @@ Return ONLY valid JSON with this structure:
 }}
 
 Be specific and honest in your assessment. Base suggestions on the actual content of the profile."""
+)
 
 
-SUGGEST_REORDER_PROMPT = """Given a professional's facet content and detected gaps for a job, propose an optimal reordering of their profile sections.
+SUGGEST_REORDER_PROMPT = """Given a professional's facet content and detected gaps for a job,
+propose an optimal reordering of their profile sections.
 
 FACET CONTENT:
 {facet_json}
