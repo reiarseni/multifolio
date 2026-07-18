@@ -391,6 +391,9 @@ class Facet(Base):
     open_to_role: Mapped[OpenToRole] = relationship(
         back_populates="facet", uselist=False, cascade="all, delete-orphan"
     )
+    notifications: Mapped[list[Notification]] = relationship(  # noqa: F821
+        back_populates="facet", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)
 
