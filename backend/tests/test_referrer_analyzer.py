@@ -1,7 +1,7 @@
 from app.services.referrer_analyzer import (
     extract_domain,
-    is_notable_referrer,
     get_domain_info,
+    is_notable_referrer,
 )
 
 

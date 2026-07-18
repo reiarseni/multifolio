@@ -3,13 +3,12 @@ import uuid
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Notification, Facet
 from app.schemas.notification import NotificationCreate
 from app.services.notification_service import (
     create_notification,
     get_user_notifications,
-    mark_as_read,
     mark_all_as_read,
+    mark_as_read,
 )
 
 
@@ -102,7 +101,7 @@ async def test_get_user_notifications_unread_only(db_session: AsyncSession):
         db_session,
         NotificationCreate(user_id=user_id, type="test", title="Unread", message="x"),
     )
-    n2 = await create_notification(
+    await create_notification(
         db_session,
         NotificationCreate(user_id=user_id, type="test", title="Also unread", message="x"),
     )
