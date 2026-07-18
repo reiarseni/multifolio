@@ -33,7 +33,7 @@ async def suggest_seo(
     return SEOSuggestResponse(variants=variants)
 
 
-@router.patch("/{facet_id}/seo", response_model=SEOUpdateResponse)
+@router.put("/{facet_id}/seo", response_model=SEOUpdateResponse)
 async def update_seo(
     facet_id: uuid.UUID,
     body: SEOUpdateRequest,
