@@ -11,6 +11,7 @@ from app.routers import (
     facets,
     github,
     health,
+    notifications,
     open_to_role,
     profile,
     projects,
@@ -42,6 +43,7 @@ app.include_router(open_to_role.router, prefix="/api")
 app.include_router(themes_router.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
+app.include_router(notifications.router, prefix="/api")
 app.include_router(public.router)
 
 app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")
