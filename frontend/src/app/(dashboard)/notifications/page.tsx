@@ -19,7 +19,6 @@ function timeAgo(dateStr: string): string {
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationOut[]>([]);
-  const [total, setTotal] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +26,6 @@ export default function NotificationsPage() {
     try {
       const data = await notificationsApi.list({ limit: 50 });
       setNotifications(data.items);
-      setTotal(data.total);
       setUnreadCount(data.unread_count);
     } catch {
       // ignore
@@ -54,7 +52,7 @@ export default function NotificationsPage() {
 
   async function handleMarkAllRead() {
     try {
-      const res = await notificationsApi.markAllAsRead();
+      await notificationsApi.markAllAsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
     } catch {
