@@ -31,3 +31,6 @@ class User(Base):
     github_repos: Mapped[list["GitHubRepo"]] = relationship(  # noqa: F821
         back_populates="user", cascade="all, delete-orphan"
     )
+    notifications: Mapped[list["Notification"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )
