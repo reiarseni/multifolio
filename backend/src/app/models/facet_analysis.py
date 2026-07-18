@@ -4,8 +4,8 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, String, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -31,8 +31,8 @@ class FacetAnalysis(Base):
     experience_score: Mapped[float] = mapped_column(Float, nullable=False)
     stack_score: Mapped[float] = mapped_column(Float, nullable=False)
     tone_score: Mapped[float] = mapped_column(Float, nullable=False)
-    gaps: Mapped[dict] = mapped_column(JSONB, nullable=False, default=[])
-    suggestions: Mapped[dict] = mapped_column(JSONB, nullable=False, default=[])
+    gaps: Mapped[dict] = mapped_column(JSON, nullable=False, default=[])
+    suggestions: Mapped[dict] = mapped_column(JSON, nullable=False, default=[])
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     facet: Mapped[Facet] = relationship(back_populates="analyses")

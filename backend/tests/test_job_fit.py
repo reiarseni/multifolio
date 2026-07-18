@@ -94,34 +94,6 @@ async def test_analyze_job_fit_rejects_long_posting(
 
 @pytest.mark.asyncio
 @patch("app.services.job_fit_service.AsyncOpenAI")
-async def test_analyze_job_fit_success(
-    mock_openai, client: AsyncClient, auth_tokens, created_facet
-):
-    facet, headers = created_facet
-
-    mock_client = AsyncMock()
-    mock_openai.return_value = mock_client
-
-    completion = AsyncMock()
-    completion.choices = [
-        AsyncMock(message=AsyncMock(content=_ENTITIES_RESPONSE)),
-    ]
-    mock_client.chat = AsyncMock()
-    mock_client.chat.completions = AsyncMock()
-    mock_client.chat.completions.create = AsyncMock(return_value=completion)
-
-    posting = "We are looking for a Senior Backend Engineer with 5+ years of experience..."
-    resp = await client.post(
-        f"/api/facets/{facet['id']}/job-fit",
-        json={"job_posting": posting},
-        headers=headers,
-    )
-
-    assert resp.status_code == 500
-
-
-@pytest.mark.asyncio
-@patch("app.services.job_fit_service.AsyncOpenAI")
 async def test_analyze_job_fit_full_flow(
     mock_openai, client: AsyncClient, auth_tokens, created_facet
 ):
