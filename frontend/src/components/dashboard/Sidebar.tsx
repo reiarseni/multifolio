@@ -10,6 +10,7 @@ const navItems = [
   { href: "/profile", label: "Perfil" },
   { href: "/projects", label: "Proyectos" },
   { href: "/facets", label: "Facetas" },
+  { href: "/notifications", label: "Notificaciones" },
 ];
 
 export function Sidebar() {
