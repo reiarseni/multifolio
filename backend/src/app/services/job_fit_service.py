@@ -178,9 +178,7 @@ async def get_analysis_history(
     facet_id: uuid.UUID,
     current_user_id: uuid.UUID,
 ) -> list[FacetAnalysis]:
-    result = await db.execute(
-        select(Facet).where(Facet.id == facet_id)
-    )
+    result = await db.execute(select(Facet).where(Facet.id == facet_id))
     facet = result.scalar_one_or_none()
     if not facet:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Facet not found")

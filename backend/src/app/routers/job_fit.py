@@ -46,9 +46,7 @@ async def get_job_fit_history(
         facet_id=facet_id,
         current_user_id=current_user.id,
     )
-    return JobFitHistoryResponse(
-        analyses=[JobFitHistoryItem.model_validate(a) for a in analyses]
-    )
+    return JobFitHistoryResponse(analyses=[JobFitHistoryItem.model_validate(a) for a in analyses])
 
 
 @router.delete("/job-fit/{analysis_id}", response_model=JobFitDeleteResponse)

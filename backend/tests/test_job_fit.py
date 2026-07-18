@@ -9,7 +9,7 @@ def _headers(access_token: str) -> dict:
     return {"Authorization": f"Bearer {access_token}"}
 
 
-_ENTITIES_RESPONSE = '''{
+_ENTITIES_RESPONSE = """{
   "title": "Senior Backend Engineer",
   "company": "TechCorp",
   "required_skills": ["Python", "SQL", "API Design"],
@@ -17,9 +17,9 @@ _ENTITIES_RESPONSE = '''{
   "tech_stack": ["FastAPI", "PostgreSQL", "Redis"],
   "preferred_skills": ["Docker", "AWS"],
   "responsibilities": ["Build APIs", "Design databases"]
-}'''
+}"""
 
-_COMPARISON_RESPONSE = '''{
+_COMPARISON_RESPONSE = """{
   "overall_score": 75,
   "skills_score": 80,
   "experience_score": 70,
@@ -34,12 +34,12 @@ _COMPARISON_RESPONSE = '''{
     }
   ],
   "suggestions": ["Destacar experiencia con FastAPI y PostgreSQL"]
-}'''
+}"""
 
-_REORDER_RESPONSE = '''{
+_REORDER_RESPONSE = """{
   "rationale": "Poner skills y stack primero porque son el match m\u00e1s fuerte",
   "proposed_order": ["skills", "stack", "experience", "education", "projects"]
-}'''
+}"""
 
 
 @pytest_asyncio.fixture
