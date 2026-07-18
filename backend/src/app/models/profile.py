@@ -25,6 +25,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.comment import Comment
+    from app.models.facet_analysis import FacetAnalysis
     from app.models.open_to_role import OpenToRole
     from app.models.review_link import ReviewLink
 
@@ -397,6 +398,9 @@ class Facet(Base):
         back_populates="facet", cascade="all, delete-orphan"
     )
     review_links: Mapped[list[ReviewLink]] = relationship(
+        back_populates="facet", cascade="all, delete-orphan"
+    )
+    analyses: Mapped[list[FacetAnalysis]] = relationship(
         back_populates="facet", cascade="all, delete-orphan"
     )
 
