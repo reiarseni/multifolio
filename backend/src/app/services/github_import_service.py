@@ -6,7 +6,6 @@ import uuid
 
 import httpx
 from fastapi import HTTPException, status
-from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -39,6 +38,8 @@ async def _fetch_readme(owner: str, repo: str) -> str:
 
 
 async def _call_llm(prompt: str) -> str:
+    from openai import AsyncOpenAI
+
     client = AsyncOpenAI(api_key=settings.openai_api_key)
     response = await client.chat.completions.create(
         model=settings.openai_model,
