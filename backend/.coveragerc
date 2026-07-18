@@ -1,0 +1,4 @@
+[run]
+omit =
+    src/app/worker/*
+    src/app/commands/*
