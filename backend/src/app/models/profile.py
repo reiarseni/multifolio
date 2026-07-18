@@ -24,7 +24,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.comment import Comment
+    from app.models.facet_analysis import FacetAnalysis
     from app.models.open_to_role import OpenToRole
+    from app.models.review_link import ReviewLink
 
 facet_work_experiences = Table(
     "facet_work_experiences",
@@ -390,6 +393,15 @@ class Facet(Base):
     )
     open_to_role: Mapped[OpenToRole] = relationship(
         back_populates="facet", uselist=False, cascade="all, delete-orphan"
+    )
+    comments: Mapped[list[Comment]] = relationship(
+        back_populates="facet", cascade="all, delete-orphan"
+    )
+    review_links: Mapped[list[ReviewLink]] = relationship(
+        back_populates="facet", cascade="all, delete-orphan"
+    )
+    analyses: Mapped[list[FacetAnalysis]] = relationship(
+        back_populates="facet", cascade="all, delete-orphan"
     )
 
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     github_client_id: str = ""
     github_client_secret: str = ""
 
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4"
+
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
