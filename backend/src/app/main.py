@@ -10,6 +10,7 @@ from app.routers import (
     auth,
     facets,
     github,
+    github_import,
     health,
     open_to_role,
     profile,
@@ -38,6 +39,7 @@ app.include_router(profile.router, prefix="/api")
 app.include_router(projects.router, prefix="/api")
 app.include_router(facets.router, prefix="/api")
 app.include_router(github.router, prefix="/api")
+app.include_router(github_import.router, prefix="/api")
 app.include_router(open_to_role.router, prefix="/api")
 app.include_router(themes_router.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
