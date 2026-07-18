@@ -4,14 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { facetsApi, type Facet } from "@/lib/api/facets";
-import { seoApi, type SEOVariant, type SEOConfigResponse } from "@/lib/api/seo";
+import { seoApi, type SEOVariant } from "@/lib/api/seo";
 import { MetaPreview } from "@/components/seo/MetaPreview";
 import { SEOSuggestions } from "@/components/seo/SEOSuggestions";
 
 export default function SEOPage() {
   const { slug: id } = useParams<{ slug: string }>();
   const [facet, setFacet] = useState<Facet | null>(null);
-  const [seoConfig, setSeoConfig] = useState<SEOConfigResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [variants, setVariants] = useState<SEOVariant[]>([]);
   const [suggesting, setSuggesting] = useState(false);
@@ -26,7 +25,6 @@ export default function SEOPage() {
     ]);
     if (facetData && seoData) {
       setFacet(facetData);
-      setSeoConfig(seoData);
       setTitle(seoData.meta_title ?? "");
       setDescription(seoData.meta_description ?? "");
     }
