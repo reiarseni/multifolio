@@ -52,6 +52,12 @@ select = ["E", "F", "I", "UP"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 
+[tool.coverage.run]
+omit = [
+    "src/app/commands/",
+    "src/app/worker/",
+]
+
 [dependency-groups]
 dev = [
     "ruff>=0.6.0",
