@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { storiesApi, type StorySection } from "@/lib/api/stories";
 import { SectionBlock } from "./SectionBlock";
 import { MediaUploader } from "./MediaUploader";
+import { STORY_SECTION_LABELS } from "@/lib/shared/constants";
 
 interface StoryEditorProps {
   facetId: string;
@@ -20,19 +22,26 @@ export function StoryEditor({ facetId }: StoryEditorProps) {
   const [sections, setSections] = useState<StorySection[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    storiesApi.getStory(facetId).then((data) => {
-      setSections(data);
-      setLoading(false);
-    });
+    storiesApi
+      .getStory(facetId)
+      .then((data) => {
+        setSections(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "No se pudo cargar la historia");
+        setLoading(false);
+      });
   }, [facetId]);
 
   const handleAddSection = async (type: string) => {
     setSaving(true);
     const newSection = await storiesApi.createSection(facetId, {
       section_type: type,
-      title: SECTION_LABELS[type] ?? type,
+      title: STORY_SECTION_LABELS[type] ?? type,
       order: sections.length,
     });
     setSections([...sections, newSection]);
@@ -96,6 +105,10 @@ export function StoryEditor({ facetId }: StoryEditorProps) {
     return <div className="text-muted-foreground">Cargando historia...</div>;
   }
 
+  if (error) {
+    return <div className="text-destructive text-sm">{error}</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -110,15 +123,17 @@ export function StoryEditor({ facetId }: StoryEditorProps) {
                 onClick={() => handleMoveUp(index)}
                 disabled={index === 0}
                 className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
+                aria-label="Mover arriba"
               >
-                ↑
+                <ArrowUp className="h-4 w-4" />
               </button>
               <button
                 onClick={() => handleMoveDown(index)}
                 disabled={index === sections.length - 1}
                 className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
+                aria-label="Mover abajo"
               >
-                ↓
+                <ArrowDown className="h-4 w-4" />
               </button>
             </div>
             <SectionBlock
@@ -152,10 +167,3 @@ export function StoryEditor({ facetId }: StoryEditorProps) {
     </div>
   );
 }
-
-const SECTION_LABELS: Record<string, string> = {
-  context: "Contexto / Problema",
-  process: "Proceso",
-  solution: "Solución",
-  impact: "Impacto y resultados",
-};

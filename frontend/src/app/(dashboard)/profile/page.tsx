@@ -8,7 +8,7 @@ import { EducationFormModal } from "@/components/profile/EducationFormModal";
 import { SkillFormModal } from "@/components/profile/SkillFormModal";
 import { CertificationFormModal } from "@/components/profile/CertificationFormModal";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { BASE_URL } from "@/lib/api-client";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<BaseProfile | null>(null);
@@ -52,9 +52,14 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const updated = await profileApi.update(form);
-    setProfile(updated);
-    setSaving(false);
+    try {
+      const updated = await profileApi.update(form);
+      setProfile(updated);
+    } catch {
+      // error handled silently — will re-enable button
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

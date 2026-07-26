@@ -1,35 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { themesApi, type Theme, type FacetThemeConfigUpdate } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
 import { VisualEditor } from "./VisualEditor";
 import { CommunityLibrary } from "./CommunityLibrary";
 import { SectionOrderer } from "./SectionOrderer";
-
-interface Props {
-  facetId: string;
-  initial: FacetThemeConfig | null;
-  onSaved?: () => void;
-}
-
-const WEB_LAYOUTS = [
-  { value: "single-column", label: "Una columna" },
-  { value: "sidebar", label: "Con barra lateral" },
-  { value: "modular", label: "Modular" },
-];
-
-const PDF_LAYOUTS = [
-  { value: "classic", label: "Clásico" },
-  { value: "two-column", label: "Dos columnas" },
-  { value: "compact", label: "Compacto" },
-];
+import { WEB_LAYOUTS, PDF_LAYOUTS } from "@/lib/shared/constants";
 
 const PHOTO_SHAPES = [
   { value: "circle", label: "Circular" },
   { value: "rounded", label: "Redondeado" },
   { value: "square", label: "Cuadrado" },
 ];
+
+interface Props {
+  facetId: string;
+  initial: FacetThemeConfig | null;
+  onSaved?: () => void;
+}
 
 export function AppearancePanel({ facetId, initial, onSaved }: Props) {
   const [themes, setThemes] = useState<Theme[]>([]);
@@ -51,21 +40,30 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
   const [showVisualEditor, setShowVisualEditor] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(savedTimerRef.current), []);
 
   useEffect(() => {
-    themesApi.list().then(setThemes);
+    themesApi.list().then(setThemes).catch(() => {});
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
-    await themesApi.updateFacetTheme(facetId, {
-      ...form,
-      section_order: sectionOrder,
-    });
-    setSaved(true);
-    setSaving(false);
-    onSaved?.();
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await themesApi.updateFacetTheme(facetId, {
+        ...form,
+        section_order: sectionOrder,
+      });
+      setSaved(true);
+      onSaved?.();
+      clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
+    } catch {
+      // error handled silently — will re-enable button
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePublish = async (themeId: string) => {
@@ -76,7 +74,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
         prev.map((t) => (t.id === themeId ? { ...t, is_public: true } : t))
       );
     } catch (error) {
-      console.error("Error publishing theme:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Error publishing theme:", error);
     } finally {
       setPublishing(null);
     }
@@ -90,7 +88,7 @@ export function AppearancePanel({ facetId, initial, onSaved }: Props) {
         prev.map((t) => (t.id === themeId ? { ...t, is_public: false } : t))
       );
     } catch (error) {
-      console.error("Error unpublishing theme:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Error unpublishing theme:", error);
     } finally {
       setPublishing(null);
     }

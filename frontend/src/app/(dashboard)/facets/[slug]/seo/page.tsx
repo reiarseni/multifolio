@@ -15,6 +15,7 @@ export default function SEOPage() {
   const [variants, setVariants] = useState<SEOVariant[]>([]);
   const [suggesting, setSuggesting] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -35,11 +36,12 @@ export default function SEOPage() {
 
   const handleSuggest = async () => {
     setSuggesting(true);
+    setError(null);
     try {
       const res = await seoApi.suggest(id);
       setVariants(res.variants);
     } catch {
-      // silent
+      setError("No se pudieron generar sugerencias. Intenta de nuevo.");
     } finally {
       setSuggesting(false);
     }
@@ -52,10 +54,11 @@ export default function SEOPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    setError(null);
     try {
       await seoApi.update(id, title || null, description || null);
     } catch {
-      // silent
+      setError("No se pudo guardar la configuración SEO.");
     } finally {
       setSaving(false);
     }
@@ -128,11 +131,17 @@ export default function SEOPage() {
         </div>
       </div>
 
-      {suggesting && (
-        <div className="text-center py-8 text-muted-foreground text-sm">
-          Analizando perfil y generando sugerencias...
-        </div>
-      )}
+          {suggesting && (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              Analizando perfil y generando sugerencias...
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-destructive/10 text-destructive text-sm rounded-md p-3">
+              {error}
+            </div>
+          )}
 
       {variants.length > 0 && !suggesting && (
         <SEOSuggestions variants={variants} onSelect={handleSelect} />

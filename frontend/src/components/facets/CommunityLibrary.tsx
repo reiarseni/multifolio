@@ -11,14 +11,21 @@ interface Props {
 export function CommunityLibrary({ facetId, onApplied }: Props) {
   const [themes, setThemes] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [applying, setApplying] = useState<string | null>(null);
   const [preview, setPreview] = useState<Theme | null>(null);
 
   useEffect(() => {
-    themesApi.listCommunity().then((data) => {
-      setThemes(data);
-      setLoading(false);
-    });
+    themesApi
+      .listCommunity()
+      .then((data) => {
+        setThemes(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("No se pudo cargar la biblioteca de temas");
+        setLoading(false);
+      });
   }, []);
 
   const handleApply = async (theme: Theme) => {
@@ -29,7 +36,7 @@ export function CommunityLibrary({ facetId, onApplied }: Props) {
       });
       onApplied?.();
     } catch (error) {
-      console.error("Error applying theme:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Error applying theme:", error);
     } finally {
       setApplying(null);
     }
@@ -37,6 +44,10 @@ export function CommunityLibrary({ facetId, onApplied }: Props) {
 
   if (loading) {
     return <div className="text-sm text-muted-foreground">Cargando biblioteca...</div>;
+  }
+
+  if (error) {
+    return <div className="text-sm text-destructive">{error}</div>;
   }
 
   return (
