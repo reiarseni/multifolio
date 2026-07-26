@@ -1,6 +1,6 @@
 """add_story_sections
 
-Revision ID: 9f0a1b2c3d4e
+Revision ID: 9f1a1b2c3d4e
 Revises: 8e9f0a1b2c3d
 Create Date: 2026-07-11 14:00:00.000000
 
@@ -13,8 +13,8 @@ from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
-revision: str = "9f0a1b2c3d4e"
-down_revision: str | None = "8e9f0a1b2c3d"
+revision: str = "9f1a1b2c3d4e"
+down_revision: str | None = "0a1b2c3d4e5f"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
