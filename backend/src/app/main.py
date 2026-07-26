@@ -15,6 +15,7 @@ from app.routers import (
     github_import,
     health,
     job_fit,
+    notifications,
     open_to_role,
     profile,
     projects,
@@ -56,6 +57,7 @@ app.include_router(comments.router, prefix="/api")
 app.include_router(job_fit.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(seo.router, prefix="/api")
+app.include_router(notifications.router, prefix="/api")
 app.include_router(public.router)
 
 app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")

@@ -39,3 +39,6 @@ class User(Base):
     review_links: Mapped[list["ReviewLink"]] = relationship(  # noqa: F821
         back_populates="creator", cascade="all, delete-orphan"
     )
+    notifications: Mapped[list["Notification"]] = relationship(  # noqa: F821
+        back_populates="user", cascade="all, delete-orphan"
+    )

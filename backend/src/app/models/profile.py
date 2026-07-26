@@ -407,6 +407,9 @@ class Facet(Base):
     analyses: Mapped[list[FacetAnalysis]] = relationship(
         back_populates="facet", cascade="all, delete-orphan"
     )
+    notifications: Mapped[list[Notification]] = relationship(  # noqa: F821
+        back_populates="facet", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "slug", name="uq_facet_slug_per_user"),)
 

@@ -9,6 +9,11 @@ from app.schemas.job_fit import (  # noqa: F401
     JobFitResponse,
     ReorderSuggestion,
 )
+from app.schemas.notification import (  # noqa: F401
+    NotificationCreate,
+    NotificationList,
+    NotificationOut,
+)
 from app.schemas.profile import (  # noqa: F401
     BaseProfileResponse,
     BaseProfileUpdate,
