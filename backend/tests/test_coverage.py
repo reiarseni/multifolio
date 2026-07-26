@@ -11,6 +11,7 @@ from app.core.oauth import (
     store_state,
     validate_state,
 )
+from app.core.sanitize import sanitize_text, strip_html
 from app.schemas.auth import LoginRequest, RegisterRequest
 from app.schemas.facet import FacetBase, FacetResponse
 from app.schemas.profile import BaseProfileResponse
@@ -70,21 +71,21 @@ class TestValidationSync:
         assert len(errors) > 0
 
 
-class TestOAuthSync:
+class TestOAuthState:
+    async def test_store_and_validate_state(self, redis_mock):
+        state = generate_state()
+        await store_state(redis_mock, state)
+        assert await validate_state(redis_mock, state) is True
+
+    async def test_validate_state_invalid(self, redis_mock):
+        assert await validate_state(redis_mock, None) is False
+        assert await validate_state(redis_mock, "nonexistent") is False
+
     def test_generate_state_returns_random(self):
         s1 = generate_state()
         s2 = generate_state()
         assert len(s1) == 43
         assert s1 != s2
-
-    def test_store_and_validate_state(self):
-        state = generate_state()
-        store_state(state)
-        assert validate_state(state) is True
-
-    def test_validate_state_invalid(self):
-        assert validate_state(None) is False
-        assert validate_state("nonexistent") is False
 
     def test_get_google_client(self):
         client = get_provider_client("google")
@@ -101,14 +102,14 @@ class TestOAuthSync:
 
 @pytest.mark.asyncio
 @patch("app.routers.auth.get_provider_client")
-async def test_oauth_callback_reaches_token_exchange(mock_get_provider, client: AsyncClient):
+async def test_oauth_callback_reaches_token_exchange(mock_get_provider, client: AsyncClient, redis_mock):
     mock_client = AsyncMock()
     mock_client.get_access_token.return_value = {"access_token": "fake_token"}
     mock_client.get_id_email = AsyncMock(return_value=("provider-uid", "oauth@test.com"))
     mock_get_provider.return_value = mock_client
 
     state = generate_state()
-    store_state(state)
+    await store_state(redis_mock, state)
     resp = await client.get(f"/auth/google/callback?code=abc&state={state}")
     assert resp.status_code == 200
 

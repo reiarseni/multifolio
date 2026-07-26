@@ -48,19 +48,23 @@ def test_decode_invalid_token():
 # ── core/oauth.py ───────────────────────────────────────────────────────────
 
 
-def test_generate_state_is_unique():
+@pytest.mark.asyncio
+async def test_generate_state_is_unique():
     from app.core.oauth import generate_state, store_state, validate_state
+    from tests.conftest import make_redis_mock
+
+    redis = make_redis_mock()
 
     s1 = generate_state()
     s2 = generate_state()
     assert s1 != s2
     assert len(s1) > 16
 
-    store_state(s1)
-    assert validate_state(s1) is True
-    assert validate_state(s2) is False
-    assert validate_state(None) is False
-    assert validate_state("") is False
+    await store_state(redis, s1)
+    assert await validate_state(redis, s1) is True
+    assert await validate_state(redis, s2) is False
+    assert await validate_state(redis, None) is False
+    assert await validate_state(redis, "") is False
 
 
 def test_provider_client_google():
