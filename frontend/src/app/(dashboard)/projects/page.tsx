@@ -29,12 +29,20 @@ export default function ProjectsPage() {
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Proyectos</h1>
-        <Link
-          href="/projects/new"
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm"
-        >
-          Nuevo proyecto
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/projects/github-import"
+            className="border px-4 py-2 rounded-md text-sm hover:bg-muted"
+          >
+            Importar desde GitHub
+          </Link>
+          <Link
+            href="/projects/new"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm"
+          >
+            Nuevo proyecto
+          </Link>
+        </div>
       </div>
 
       {projects.length === 0 ? (
