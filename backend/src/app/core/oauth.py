@@ -1,5 +1,6 @@
 import secrets
-import time
+
+from redis.asyncio import Redis
 
 from httpx_oauth.clients.github import GitHubOAuth2
 from httpx_oauth.clients.google import GoogleOAuth2
@@ -9,7 +10,7 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-SCOPE_SEPARATOR = " "
+_SCOPE_SEPARATOR = " "
 GOOGLE_SCOPES = ["openid", "profile", "email"]
 GITHUB_SCOPES = ["read:user", "user:email"]
 
@@ -23,6 +24,9 @@ OAUTH_PROVIDERS = {
         "scopes": GITHUB_SCOPES,
     },
 }
+
+_STATE_PREFIX = "oauth_state:"
+_STATE_TTL = 600  # 10 minutes
 
 
 def get_google_client() -> GoogleOAuth2:
@@ -56,16 +60,16 @@ def generate_state() -> str:
     return secrets.token_urlsafe(32)
 
 
-_STATE_STORE: dict[str, float] = {}
-_STATE_TTL = 600  # 10 minutes
+async def store_state(redis: Redis, state: str) -> None:
+    await redis.setex(f"{_STATE_PREFIX}{state}", _STATE_TTL, "1")
 
 
-def store_state(state: str) -> None:
-    _STATE_STORE[state] = time.time()
-
-
-def validate_state(state: str | None) -> bool:
-    if not state or state not in _STATE_STORE:
+async def validate_state(redis: Redis, state: str | None) -> bool:
+    if not state:
         return False
-    created = _STATE_STORE.pop(state)
-    return (time.time() - created) < _STATE_TTL
+    key = f"{_STATE_PREFIX}{state}"
+    exists = await redis.get(key)
+    if not exists:
+        return False
+    await redis.delete(key)
+    return True

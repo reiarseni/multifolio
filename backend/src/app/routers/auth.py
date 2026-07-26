@@ -11,11 +11,14 @@ from app.core.oauth import (
     store_state,
     validate_state,
 )
+from app.core.rate_limit import RateLimiter
 from app.db.session import get_db_session
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from app.services import auth_service
 
 settings = get_settings()
+
+auth_rate_limit = RateLimiter(max_requests=10, window_seconds=60)
 
 router = APIRouter(tags=["auth"])
 
@@ -38,7 +41,9 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     body: RegisterRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db_session),
+    _rate_limit: None = Depends(auth_rate_limit),
 ) -> UserResponse:
     user = await auth_service.register_user(db, body.email, body.password)
     return UserResponse(id=user.id, email=user.email)
@@ -47,9 +52,11 @@ async def register(
 @router.post("/login", response_model=TokenResponse)
 async def login(
     body: LoginRequest,
+    request: Request,
     response: Response,
     db: AsyncSession = Depends(get_db_session),
     redis: aioredis.Redis = Depends(get_redis),
+    _rate_limit: None = Depends(auth_rate_limit),
 ) -> TokenResponse:
     access_token, refresh_token = await auth_service.login_user(
         db, redis, body.email, body.password
@@ -89,7 +96,11 @@ PROVIDERS = ("google", "github")
 
 
 @router.get("/{provider}/login")
-async def oauth_login(provider: str, request: Request) -> RedirectResponse:
+async def oauth_login(
+    provider: str,
+    request: Request,
+    redis: aioredis.Redis = Depends(get_redis),
+) -> RedirectResponse:
     if provider not in PROVIDERS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -98,7 +109,7 @@ async def oauth_login(provider: str, request: Request) -> RedirectResponse:
 
     client = get_provider_client(provider)
     state = generate_state()
-    store_state(state)
+    await store_state(redis, state)
 
     base_url = str(request.base_url).rstrip("/")
     redirect_url = f"{base_url}/auth/{provider}/callback"
@@ -134,7 +145,7 @@ async def oauth_callback(
             detail=f"OAuth error: {error}",
         )
 
-    if not validate_state(state):
+    if not await validate_state(redis, state):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid or expired state parameter",
