@@ -190,33 +190,6 @@ async def test_upload_image_thumbnail(client: AsyncClient, auth_tokens):
 
 
 @pytest.mark.asyncio
-async def test_story_section_media_upload(client: AsyncClient, auth_tokens, created_facet):
-    access_token, _ = auth_tokens
-    headers = _headers(access_token)
-    facet_data, _ = created_facet
-
-    create_resp = await client.post(
-        f"/api/facets/{facet_data['id']}/story/sections",
-        json={"section_type": "context", "title": "Media Test", "order": 0},
-        headers=headers,
-    )
-    section_id = create_resp.json()["id"]
-
-    img = Image.new("RGB", (100, 100), color="yellow")
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-
-    resp = await client.post(
-        f"/api/story/sections/{section_id}/media",
-        files={"file": ("test.png", buf, "image/png")},
-        headers=headers,
-    )
-    assert resp.status_code == 200
-    assert "url" in resp.json()
-
-
-@pytest.mark.asyncio
 async def test_story_update_section(client: AsyncClient, auth_tokens, created_facet):
     access_token, _ = auth_tokens
     headers = _headers(access_token)

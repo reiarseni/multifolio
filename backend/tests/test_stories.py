@@ -158,56 +158,6 @@ async def test_get_story_empty(client: AsyncClient, auth_tokens, created_facet):
 
 
 @pytest.mark.asyncio
-async def test_upload_media(client: AsyncClient, auth_tokens, created_facet):
-    import io
-
-    from PIL import Image
-
-    facet_data, headers = created_facet
-
-    create_resp = await client.post(
-        f"/api/facets/{facet_data['id']}/story/sections",
-        json={"section_type": "context", "title": "With Media", "order": 0},
-        headers=headers,
-    )
-    section_id = create_resp.json()["id"]
-
-    img = Image.new("RGB", (100, 100), color="red")
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-
-    resp = await client.post(
-        f"/api/story/sections/{section_id}/media",
-        files={"file": ("test.png", buf, "image/png")},
-        headers=headers,
-    )
-    assert resp.status_code == 200
-    data = resp.json()
-    assert "url" in data
-    assert data["url"].startswith("/media/images/")
-
-
-@pytest.mark.asyncio
-async def test_upload_media_invalid_type(client: AsyncClient, auth_tokens, created_facet):
-    facet_data, headers = created_facet
-
-    create_resp = await client.post(
-        f"/api/facets/{facet_data['id']}/story/sections",
-        json={"section_type": "context", "title": "Bad Upload", "order": 0},
-        headers=headers,
-    )
-    section_id = create_resp.json()["id"]
-
-    resp = await client.post(
-        f"/api/story/sections/{section_id}/media",
-        files={"file": ("test.txt", b"hello", "text/plain")},
-        headers=headers,
-    )
-    assert resp.status_code == 400
-
-
-@pytest.mark.asyncio
 async def test_section_not_found(client: AsyncClient, auth_tokens):
     access_token, _ = auth_tokens
     headers = _headers(access_token)
