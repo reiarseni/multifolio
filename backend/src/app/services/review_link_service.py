@@ -1,53 +1,47 @@
+from __future__ import annotations
+
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
 
+import bcrypt
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import hash_password, verify_password
 from app.models.profile import Facet
 from app.models.review_link import ReviewLink
 from app.schemas.review_link import ReviewLinkCreate
 
 
-async def _load_facet(db: AsyncSession, user_id: uuid.UUID, facet_id: uuid.UUID) -> Facet:
-    result = await db.execute(select(Facet).where(Facet.id == facet_id, Facet.user_id == user_id))
-    facet = result.scalar_one_or_none()
-    if not facet:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return facet
+def _hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
-def _generate_token() -> str:
-    return secrets.token_urlsafe(48)[:64]
+def _verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
 
 
-async def create_review_link(
+async def create_link(
     db: AsyncSession,
     user_id: uuid.UUID,
     facet_id: uuid.UUID,
     data: ReviewLinkCreate,
 ) -> ReviewLink:
-    await _load_facet(db, user_id, facet_id)
-
-    password_hash = None
-    if data.password:
-        password_hash = hash_password(data.password)
-
-    expires_at = None
-    if data.expires_in_hours:
-        expires_at = datetime.now(UTC) + timedelta(hours=data.expires_in_hours)
+    result = await db.execute(select(Facet).where(Facet.id == facet_id, Facet.user_id == user_id))
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Facet not found")
 
     link = ReviewLink(
         facet_id=facet_id,
-        token=_generate_token(),
-        created_by=user_id,
+        token=secrets.token_urlsafe(32),
         label=data.label,
-        password_hash=password_hash,
-        expires_at=expires_at,
-        single_use=password_hash is not None or expires_at is not None,
+        requires_password=bool(data.password),
+        password_hash=_hash_password(data.password) if data.password else None,
+        expires_at=datetime.now(UTC) + timedelta(hours=data.expires_in_hours)
+        if data.expires_in_hours
+        else None,
+        single_use=False,
     )
     db.add(link)
     await db.commit()
@@ -55,12 +49,15 @@ async def create_review_link(
     return link
 
 
-async def list_review_links(
+async def list_links(
     db: AsyncSession,
     user_id: uuid.UUID,
     facet_id: uuid.UUID,
 ) -> list[ReviewLink]:
-    await _load_facet(db, user_id, facet_id)
+    result = await db.execute(select(Facet).where(Facet.id == facet_id, Facet.user_id == user_id))
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Facet not found")
+
     result = await db.execute(
         select(ReviewLink)
         .where(ReviewLink.facet_id == facet_id)
@@ -69,7 +66,7 @@ async def list_review_links(
     return list(result.scalars().all())
 
 
-async def delete_review_link(
+async def delete_link(
     db: AsyncSession,
     user_id: uuid.UUID,
     link_id: uuid.UUID,
@@ -77,57 +74,60 @@ async def delete_review_link(
     result = await db.execute(select(ReviewLink).where(ReviewLink.id == link_id))
     link = result.scalar_one_or_none()
     if not link:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found")
 
-    await _load_facet(db, user_id, link.facet_id)
+    result = await db.execute(
+        select(Facet).where(Facet.id == link.facet_id, Facet.user_id == user_id)
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your facet")
 
     await db.delete(link)
     await db.commit()
 
 
-async def validate_link_access(
+async def validate_link(
     db: AsyncSession,
     token: str,
-    password: str | None = None,
+    password: str | None,
+) -> tuple[bool, uuid.UUID]:
+    result = await db.execute(select(ReviewLink).where(ReviewLink.token == token))
+    link = result.scalar_one_or_none()
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found")
+
+    if link.expires_at and link.expires_at < datetime.now(UTC):
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Link expired")
+
+    if link.single_use and link.is_used:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Link already used")
+
+    if link.requires_password:
+        if not password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password required")
+        if not link.password_hash or not _verify_password(password, link.password_hash):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+
+    if link.single_use:
+        link.is_used = True
+        await db.commit()
+
+    return True, link.facet_id
+
+
+async def access_link(
+    db: AsyncSession,
+    token: str,
 ) -> ReviewLink:
     result = await db.execute(select(ReviewLink).where(ReviewLink.token == token))
     link = result.scalar_one_or_none()
     if not link:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Link no encontrado o invalido",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found")
 
-    if link.expires_at and datetime.now(UTC) > link.expires_at:
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE,
-            detail="Este link ha expirado",
-        )
+    if link.expires_at and link.expires_at < datetime.now(UTC):
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Link expired")
 
-    if link.used_at and link.single_use:
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE,
-            detail="Este link ya fue utilizado",
-        )
-
-    if link.password_hash:
-        if not password:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Se requiere contraseña para acceder a este link",
-            )
-        if not verify_password(password, link.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Contraseña incorrecta",
-            )
+    if link.single_use and link.is_used:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Link already used")
 
     return link
-
-
-async def mark_as_used(db: AsyncSession, link_id: uuid.UUID) -> None:
-    result = await db.execute(select(ReviewLink).where(ReviewLink.id == link_id))
-    link = result.scalar_one_or_none()
-    if link:
-        link.used_at = datetime.now(UTC)
-        await db.commit()

@@ -393,10 +393,10 @@ class Facet(Base):
     open_to_role: Mapped[OpenToRole] = relationship(
         back_populates="facet", uselist=False, cascade="all, delete-orphan"
     )
-    review_links: Mapped[list[ReviewLink]] = relationship(
+    story_sections: Mapped[list[StorySection]] = relationship(
         back_populates="facet", cascade="all, delete-orphan"
     )
-    story_sections: Mapped[list[StorySection]] = relationship(
+    review_links: Mapped[list[ReviewLink]] = relationship(
         back_populates="facet", cascade="all, delete-orphan"
     )
 

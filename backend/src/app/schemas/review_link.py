@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ReviewLinkCreate(BaseModel):
     label: str | None = None
-    password: str | None = Field(None, min_length=6, max_length=128)
-    expires_in_hours: int | None = Field(None, ge=1, le=720)
+    password: str | None = None
+    expires_in_hours: int | None = None
 
 
 class ReviewLinkResponse(BaseModel):
@@ -26,7 +28,12 @@ class ReviewLinkResponse(BaseModel):
 
 
 class ReviewLinkValidateRequest(BaseModel):
-    password: str
+    password: str | None = None
+
+
+class ReviewLinkValidateResponse(BaseModel):
+    valid: bool
+    facet_id: uuid.UUID
 
 
 class ReviewLinkAccessResponse(BaseModel):

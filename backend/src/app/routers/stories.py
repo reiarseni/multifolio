@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import uuid
 
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
@@ -12,7 +14,7 @@ from app.schemas.story import (
     StorySectionResponse,
     StorySectionUpdate,
 )
-from app.services import media_service, story_service
+from app.services import story_service
 
 router = APIRouter(tags=["stories"])
 
@@ -70,14 +72,3 @@ async def delete_section(
     current_user: User = Depends(get_current_user),
 ):
     await story_service.delete_section(db, current_user.id, section_id)
-
-
-@router.post("/story/sections/{section_id}/media")
-async def upload_media(
-    section_id: uuid.UUID,
-    file: UploadFile,
-    db: AsyncSession = Depends(get_db_session),
-    current_user: User = Depends(get_current_user),
-):
-    url = await media_service.upload_image(file)
-    return {"url": url}
