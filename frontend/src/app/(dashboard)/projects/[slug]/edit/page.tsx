@@ -5,8 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ProjectForm } from "@/components/forms/ProjectForm";
 import { projectsApi, type Project, type ProjectImage, type ProjectAttachment } from "@/lib/api/projects";
 import { uploadFile } from "@/lib/api/upload";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { BASE_URL } from "@/lib/api-client";
 
 export default function EditProjectPage() {
   const { slug: id } = useParams<{ slug: string }>();

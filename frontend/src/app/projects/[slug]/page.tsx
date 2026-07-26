@@ -4,8 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Project } from "@/lib/api/projects";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { BASE_URL } from "@/lib/api-client";
 
 export default function PublicProjectPage() {
   const { slug } = useParams<{ slug: string }>();

@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 
 export interface ReferrerCount {
   referrer: string;
@@ -22,15 +23,6 @@ export interface TrendResponse {
   metric: string;
   period: string;
   data: TrendPoint[];
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
 }
 
 export const analyticsApi = {

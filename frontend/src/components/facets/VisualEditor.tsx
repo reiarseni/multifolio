@@ -1,27 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { themesApi } from "@/lib/api/themes";
 import type { FacetThemeConfig } from "@/lib/api/themes";
 import { TokenControls } from "./TokenControls";
+import { WEB_LAYOUTS, PDF_LAYOUTS } from "@/lib/shared/constants";
 
 interface Props {
   facetId: string;
   initial: FacetThemeConfig | null;
   onSaved?: () => void;
 }
-
-const WEB_LAYOUTS = [
-  { value: "single-column", label: "Una columna" },
-  { value: "sidebar", label: "Con barra lateral" },
-  { value: "modular", label: "Modular" },
-];
-
-const PDF_LAYOUTS = [
-  { value: "classic", label: "Clásico" },
-  { value: "two-column", label: "Dos columnas" },
-  { value: "compact", label: "Compacto" },
-];
 
 interface TokenGroup {
   color: Record<string, string>;
@@ -46,6 +35,9 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("color");
   const [previewTokens, setPreviewTokens] = useState<TokenGroup>(EMPTY_TOKENS);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(savedTimerRef.current), []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -61,9 +53,10 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
       });
       setSaved(true);
       onSaved?.();
-      setTimeout(() => setSaved(false), 2000);
+      clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      console.error("Error saving appearance:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Error saving appearance:", error);
     } finally {
       setSaving(false);
     }
@@ -85,7 +78,7 @@ export function VisualEditor({ facetId, initial, onSaved }: Props) {
       });
       setForm((f) => ({ ...f, theme_id: response.id }));
     } catch (error) {
-      console.error("Error saving custom theme:", error);
+      if (process.env.NODE_ENV !== "production") console.error("Error saving custom theme:", error);
     }
   };
 

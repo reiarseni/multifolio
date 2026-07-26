@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 
 export interface AIGeneratedProject {
   repo_id: string;
@@ -17,15 +17,6 @@ export interface ImportConfirmResponse {
   message: string;
   count: number;
   project_ids: string[];
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
 }
 
 export const githubImportApi = {

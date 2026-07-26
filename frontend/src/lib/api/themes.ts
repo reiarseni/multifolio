@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 
 export interface Theme {
   id: string;
@@ -32,17 +32,6 @@ export interface FacetThemeConfigUpdate {
   show_photo_pdf?: boolean;
   photo_shape?: string;
   section_order?: string[];
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return {
-    ...opts,
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...((opts.headers as Record<string, string>) ?? {}),
-    },
-  };
 }
 
 export interface CustomThemeCreate {

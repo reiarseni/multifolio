@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 import type { FacetThemeConfig } from "@/lib/api/themes";
 
 export interface Facet {
@@ -21,15 +21,6 @@ export interface Facet {
   project_ids: string[];
   certification_ids: string[];
   theme_config: FacetThemeConfig | null;
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
 }
 
 export const facetsApi = {

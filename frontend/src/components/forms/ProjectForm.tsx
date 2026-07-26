@@ -3,8 +3,7 @@
 import { type Project } from "@/lib/api/projects";
 import { useRef, useState } from "react";
 import { uploadFile } from "@/lib/api/upload";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { BASE_URL } from "@/lib/api-client";
 
 interface Props {
   initial?: Partial<Project>;

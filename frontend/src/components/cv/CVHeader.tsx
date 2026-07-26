@@ -1,10 +1,5 @@
 import type { PublicFacetResponse } from "@/lib/api/public";
-
-const PHOTO_SHAPE_CLASS: Record<string, string> = {
-  circle: "rounded-full",
-  rounded: "rounded-xl",
-  square: "rounded-none",
-};
+import { PHOTO_SHAPE_CLASS } from "@/lib/shared/constants";
 
 export function CVHeader({ data }: { data: PublicFacetResponse }) {
   const shapeClass = PHOTO_SHAPE_CLASS[data.photo_shape ?? "circle"] ?? "rounded-full";

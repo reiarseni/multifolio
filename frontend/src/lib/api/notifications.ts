@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 
 export interface NotificationOut {
   id: string;
@@ -18,15 +18,6 @@ export interface NotificationList {
   items: NotificationOut[];
   total: number;
   unread_count: number;
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
 }
 
 export const notificationsApi = {

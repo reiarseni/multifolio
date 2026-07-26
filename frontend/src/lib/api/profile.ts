@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { getToken } from "@/lib/auth/token";
+import { withAuth } from "@/lib/api/auth-helpers";
 
 export interface WorkExperience {
   id: string;
@@ -72,15 +72,6 @@ export interface BaseProfile {
   educations: Education[];
   skills: Skill[];
   certifications: Certification[];
-}
-
-function getAuthHeaders(): Record<string, string> {
-  const token = typeof window !== "undefined" ? getToken() : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function withAuth(opts: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...opts, headers: { ...getAuthHeaders(), ...(opts.headers as Record<string, string> ?? {}) } };
 }
 
 export const profileApi = {

@@ -1,6 +1,7 @@
 "use client";
 
 import type { StorySection } from "@/lib/api/stories";
+import { STORY_SECTION_LABELS } from "@/lib/shared/constants";
 
 interface SectionBlockProps {
   section: StorySection;
@@ -8,13 +9,6 @@ interface SectionBlockProps {
   onDelete: (id: string) => void;
   onToggleVisibility: (id: string, visible: boolean) => void;
 }
-
-const SECTION_LABELS: Record<string, string> = {
-  context: "Contexto / Problema",
-  process: "Proceso",
-  solution: "Solución",
-  impact: "Impacto y resultados",
-};
 
 export function SectionBlock({
   section,
@@ -27,7 +21,7 @@ export function SectionBlock({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">
-            {SECTION_LABELS[section.section_type] ?? section.section_type}
+            {STORY_SECTION_LABELS[section.section_type] ?? section.section_type}
           </span>
         </div>
         <div className="flex gap-2">
