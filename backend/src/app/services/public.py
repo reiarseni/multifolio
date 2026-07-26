@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.sanitize import sanitize_text
 from app.models.profile import BaseProfile, Facet, FacetThemeConfig, Project
 from app.models.user import User
 
@@ -44,10 +45,10 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
 
     return {
         "slug": facet.slug,
-        "title": facet.title,
-        "bio": facet.bio,
-        "meta_title": facet.meta_title,
-        "meta_description": facet.meta_description,
+        "title": sanitize_text(facet.title),
+        "bio": sanitize_text(facet.bio),
+        "meta_title": sanitize_text(facet.meta_title),
+        "meta_description": sanitize_text(facet.meta_description),
         "pdf_template": facet.pdf_template,
         "pdf_layout": facet.theme_config.pdf_layout if facet.theme_config else "classic",
         "web_layout": facet.theme_config.web_layout if facet.theme_config else "single-column",
@@ -55,7 +56,7 @@ async def get_published_facet(db: AsyncSession, slug: str) -> dict:
         "show_photo_pdf": facet.theme_config.show_photo_pdf if facet.theme_config else True,
         "photo_shape": facet.theme_config.photo_shape if facet.theme_config else "circle",
         "theme_tokens": theme_tokens,
-        "full_name": profile.full_name if profile else "",
+        "full_name": sanitize_text(profile.full_name) if profile else "",
         "email": user.email if user else "",
         "phone": profile.phone if profile else None,
         "photo_url": profile.photo_url if profile else None,

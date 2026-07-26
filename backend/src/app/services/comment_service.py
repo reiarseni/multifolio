@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.sanitize import sanitize_text
 from app.models.comment import Comment
 from app.models.profile import Facet
 from app.models.review_link import ReviewLink
@@ -52,9 +53,9 @@ async def create_comment_by_token(db: AsyncSession, token: str, data: CommentCre
     comment = Comment(
         facet_id=facet.id,
         parent_id=data.parent_id,
-        content=data.content,
+        content=sanitize_text(data.content) or "",
         section_ref=data.section_ref,
-        author_name=data.author_name,
+        author_name=sanitize_text(data.author_name),
         author_email=data.author_email,
     )
     db.add(comment)

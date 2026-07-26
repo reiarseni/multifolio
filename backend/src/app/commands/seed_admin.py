@@ -21,10 +21,14 @@ from app.db.session import async_session_factory
 from app.models.user import User
 
 _EMAIL = os.getenv("SUPERADMIN_EMAIL", "admin@multifolio.dev")
-_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "admin1234")
+_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
 
 
 async def _seed() -> None:
+    if not _PASSWORD:
+        raise RuntimeError(
+            "SUPERADMIN_PASSWORD no está definido. Configúralo en el .env del backend."
+        )
     async with async_session_factory() as db:
         result = await db.execute(select(User).where(User.email == _EMAIL))
         user = result.scalar_one_or_none()
