@@ -20,6 +20,7 @@ from app.routers import (
     projects,
     public,
     review_links,
+    seo,
     stories,
     upload,
 )
@@ -54,6 +55,7 @@ app.include_router(review_links.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
 app.include_router(job_fit.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
+app.include_router(seo.router, prefix="/api")
 app.include_router(public.router)
 
 app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")

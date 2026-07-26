@@ -22,3 +22,10 @@ from app.schemas.profile import (  # noqa: F401
     WorkExperienceResponse,
 )
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate  # noqa: F401
+from app.schemas.seo import (  # noqa: F401
+    SEOConfigResponse,
+    SEOSuggestResponse,
+    SEOUpdateRequest,
+    SEOUpdateResponse,
+    SEOVariant,
+)
