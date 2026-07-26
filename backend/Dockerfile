@@ -26,4 +26,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "/app/.venv/bin/alembic upgrade head && /app/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "for i in $(seq 1 30); do /app/.venv/bin/alembic upgrade head && break || echo \"Waiting for DB... ($i)\" && sleep 2; done && /app/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000"]
