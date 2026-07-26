@@ -13,6 +13,7 @@ from app.routers import (
     facets,
     github,
     health,
+    job_fit,
     open_to_role,
     profile,
     projects,
@@ -49,6 +50,7 @@ app.include_router(stories.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 app.include_router(review_links.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
+app.include_router(job_fit.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(public.router)
 

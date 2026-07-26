@@ -50,6 +50,15 @@ export default function FacetDetailPage() {
         </Link>
       </div>
 
+      <div className="flex gap-3">
+        <Link
+          href={`/facets/${facet.id}/job-fit`}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm"
+        >
+          Job Market Fit
+        </Link>
+      </div>
+
       <div className="border rounded-md p-4 space-y-3">
         <h2 className="font-semibold">Enlaces públicos</h2>
         {facet.is_published ? (
