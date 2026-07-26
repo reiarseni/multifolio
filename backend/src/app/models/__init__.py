@@ -1,4 +1,5 @@
 from app.models.analytics import FacetEvent  # noqa: F401
+from app.models.comment import Comment  # noqa: F401
 from app.models.github_repo import GitHubRepo  # noqa: F401
 from app.models.open_to_role import OpenToRole  # noqa: F401
 from app.models.profile import (  # noqa: F401

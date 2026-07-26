@@ -9,6 +9,7 @@ from app.routers import (
     ai,
     analytics,
     auth,
+    comments,
     facets,
     github,
     health,
@@ -47,6 +48,7 @@ app.include_router(upload.router, prefix="/api")
 app.include_router(stories.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 app.include_router(review_links.router, prefix="/api")
+app.include_router(comments.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(public.router)
 
