@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function ShareButton({ url, label = "Copiar link" }: { url: string; label?: string }) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(url);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (

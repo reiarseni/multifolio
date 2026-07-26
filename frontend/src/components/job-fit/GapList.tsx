@@ -1,5 +1,6 @@
 "use client";
 
+import { Lightbulb } from "lucide-react";
 import type { GapItem, ReorderSuggestion } from "@/lib/api/job-fit";
 
 interface GapListProps {
@@ -37,7 +38,7 @@ export function GapList({ gaps, suggestions, reorderSuggestion, onApplyReorder }
                   </span>
                 </div>
                 <p className="mb-1">{gap.description}</p>
-                <p className="text-xs opacity-75">💡 {gap.suggestion}</p>
+                <p className="text-xs opacity-75 flex items-start gap-1"><Lightbulb className="h-3.5 w-3.5 mt-0.5 shrink-0" /> {gap.suggestion}</p>
               </div>
             ))}
           </div>

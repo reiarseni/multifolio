@@ -42,7 +42,7 @@ test.describe('Flujo 1: Authentication & Onboarding', () => {
 
     // Fill registration form
     await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password|contrase/i, { hasNotText: /confirm/i }).first().fill(password);
+    await page.getByLabel(/password|contrase/i).first().fill(password);
     
     // Look for confirm password or just submit
     const confirmField = page.getByLabel(/confirm|confirmar/i);

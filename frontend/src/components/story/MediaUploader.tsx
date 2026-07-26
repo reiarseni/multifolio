@@ -21,7 +21,7 @@ export function MediaUploader({ sectionId, onUpload }: MediaUploaderProps) {
       const result = await storiesApi.uploadMedia(sectionId, file);
       onUpload(result.url);
     } catch (err) {
-      console.error("Upload failed:", err);
+      if (process.env.NODE_ENV !== "production") console.error("Upload failed:", err);
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

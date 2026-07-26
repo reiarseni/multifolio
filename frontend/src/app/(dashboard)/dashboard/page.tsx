@@ -7,6 +7,7 @@ import { projectsApi, type Project } from "@/lib/api/projects";
 import { facetsApi, type Facet } from "@/lib/api/facets";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { FacetCard } from "@/components/dashboard/FacetCard";
+import { CardSkeleton } from "@/components/ui/Skeleton";
 
 export default function DashboardHome() {
   const [profile, setProfile] = useState<BaseProfile | null>(null);
@@ -28,7 +29,18 @@ export default function DashboardHome() {
   }, []);
 
   if (loading) {
-    return <div className="text-muted-foreground">Loading...</div>;
+    return (
+      <div className="max-w-3xl space-y-4">
+        <div className="h-7 bg-muted rounded w-32 animate-pulse" />
+        <div className="grid grid-cols-3 gap-4">
+          <div className="h-16 bg-muted rounded animate-pulse" />
+          <div className="h-16 bg-muted rounded animate-pulse" />
+          <div className="h-16 bg-muted rounded animate-pulse" />
+        </div>
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    );
   }
 
   const profileCount = profile ? 1 : 0;

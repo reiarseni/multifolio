@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { authApi } from "@/lib/api/auth";
 import { getToken, setToken } from "@/lib/auth/token";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -28,8 +29,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-muted-foreground text-sm">
-        Cargando…
+      <div className="flex min-h-screen items-center justify-center">
+        <Skeleton className="w-32" />
       </div>
     );
   }

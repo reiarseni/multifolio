@@ -1,5 +1,15 @@
 import type { StorySection } from "@/lib/api/stories";
 
+const ALLOWED_EMBED_HOSTS = ["www.youtube.com", "youtube.com", "vimeo.com", "www.vimeo.com"];
+
+const isEmbedUrl = (url: string) => {
+  try {
+    return ALLOWED_EMBED_HOSTS.includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+};
+
 interface StoryPreviewProps {
   sections: StorySection[];
 }
@@ -41,7 +51,7 @@ export function StoryPreview({ sections }: StoryPreviewProps) {
             <div className="flex flex-wrap gap-3">
               {section.media_urls.map((url, idx) => (
                 <div key={idx}>
-                  {url.includes("youtube.com") || url.includes("vimeo.com") ? (
+                  {isEmbedUrl(url) ? (
                     <div className="aspect-video w-full max-w-md">
                       <iframe
                         src={url}

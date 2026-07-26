@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react";
 import type { PublicProject } from "@/lib/api/public";
 
 export function CVProjects({ items }: { items: PublicProject[] }) {
@@ -50,7 +51,7 @@ export function CVProjects({ items }: { items: PublicProject[] }) {
                   className="hover:underline"
                   style={{ color: "var(--color-accent, var(--color-primary, inherit))" }}
                 >
-                  Repositorio →
+                  Repositorio <ExternalLink className="h-3 w-3 inline" />
                 </a>
               )}
               {project.live_url && (
@@ -61,7 +62,7 @@ export function CVProjects({ items }: { items: PublicProject[] }) {
                   className="hover:underline"
                   style={{ color: "var(--color-accent, var(--color-primary, inherit))" }}
                 >
-                  Demo →
+                  Demo <ExternalLink className="h-3 w-3 inline" />
                 </a>
               )}
             </div>
